@@ -367,6 +367,7 @@ public:
             const auto field_status = read_field_by_number<std::remove_reference_t<decltype(value)>, 0>(
                 *this, value, field_number, wire);
             if (field_status == read_status::error) {
+                error().type_name(type_name);
                 return field_status;
             }
         }

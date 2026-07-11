@@ -5,7 +5,6 @@
 #include <contract/adapters/console/all.hpp>
 #include <contract/contract.hpp>
 
-#include <algorithm>
 #include <array>
 #include <cassert>
 #include <cstddef>
@@ -111,7 +110,7 @@ int main() {
         PrintableUnsignedCharRecord record;
         const std::string expected =
             "PrintableUnsignedCharRecord:\n"
-            "  label: \"alert\" # #1 std::array<unsigned char,5>, bytes=5\n";
+            "  label: \"alert\" # #1 std::array<u8,5>, bytes=5\n";
         assert(contract::adapters::console::to_string(record) == expected);
     }
 
@@ -119,7 +118,7 @@ int main() {
         BinaryUnsignedCharRecord record;
         const std::string expected =
             "BinaryUnsignedCharRecord:\n"
-            "  hash: \"10 2b 9a 01\" # #1 std::array<unsigned char,4>, bytes=4\n";
+            "  hash: \"10 2b 9a 01\" # #1 std::array<u8,4>, bytes=4\n";
         assert(contract::adapters::console::to_string(record) == expected);
     }
 
@@ -133,7 +132,15 @@ int main() {
             "LongPackedCharRecord:\n"
             "  code: \"" + std::string(64, 'a') + "\" # #1 char[100], bytes=100, truncated\n";
         assert(output == expected);
-        assert(std::count(output.begin(), output.end(), '#') == 1);
+        // Count comment *segments* (" # " delimiters), not raw '#' characters -
+        // the field-id comment itself contains a '#' (e.g. "#1"), so a plain
+        // character count would always be >= 2 for any commented field.
+        std::size_t segment_count = 0;
+        for (std::size_t pos = output.find(" # "); pos != std::string::npos;
+             pos = output.find(" # ", pos + 1)) {
+            ++segment_count;
+        }
+        assert(segment_count == 1);
     }
 
     return 0;

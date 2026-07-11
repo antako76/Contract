@@ -4,6 +4,9 @@ function(add_contract_test name source)
     add_executable(${name} ${source})
     target_link_libraries(${name} PRIVATE contract::contract)
     target_include_directories(${name} PRIVATE ${PROJECT_SOURCE_DIR}/tests)
+    # Tests assert their way to failure; keep assert() live even when the rest
+    # of the project is configured as Release (which defines NDEBUG).
+    target_compile_options(${name} PRIVATE -UNDEBUG)
     add_test(NAME ${name} COMMAND $<TARGET_FILE:${name}>)
 endfunction()
 

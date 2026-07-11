@@ -136,7 +136,7 @@ int main() {
 
     const auto colored_actual = contract::adapters::console::to_string(record, colored);
     assert(colored_actual.find("\x1b[96mConsoleRecord\x1b[0m") != std::string::npos);
-    assert(colored_actual.find("\x1b[32m\"payment\"\x1b[0m") != std::string::npos);
+    assert(colored_actual.find("\x1b[92m\"payment\"\x1b[0m") != std::string::npos);
     assert(colored_actual.find("\x1b[33m42\x1b[0m") != std::string::npos);
 
     StringOutput output;
