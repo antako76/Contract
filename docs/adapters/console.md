@@ -3,10 +3,6 @@
 This page is the adapter-specific entry for console debug rendering.
 The shared public contract is in [`README.md`](README.md), and the implementation is split between [`../../include/contract/adapters/console.hpp`](../../include/contract/adapters/console.hpp) and [`../../include/contract/adapters/console/all.hpp`](../../include/contract/adapters/console/all.hpp).
 
-## Implementation Note
-
-This page is the current reference for console rendering behavior.
-
 ## Public Surface
 
 - [`contract::adapters::console::writer<Output>`](../../include/contract/adapters/console.hpp)

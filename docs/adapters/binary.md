@@ -10,6 +10,46 @@ Field/codec organization rules are described in [`README.md`](README.md).
 Exception and status/result policy is documented in
 [`../rationale/exceptions.md`](../rationale/exceptions.md).
 
+## Example - Native Layout, No Wire Overhead
+
+```cpp
+#include <contract/adapters/binary/all.hpp>
+#include <contract/contract.hpp>
+
+#include <array>
+#include <cstdint>
+
+struct Point {
+    std::uint32_t x;
+    std::uint32_t y;
+
+    CONTRACT(Point, (x, 1), (y, 2))
+};
+
+int main() {
+    Point p{7, 9};
+
+    std::array<unsigned char, 32> buffer{};
+    contract::adapters::binary::writer<> out(buffer.data());
+    out << p;
+
+    // 07 00 00 00  x, little-endian u32
+    // 09 00 00 00  y, little-endian u32
+    // (8 bytes total - no tags, no length prefix, no wire overhead)
+
+    Point restored{};
+    contract::adapters::binary::reader<> in(buffer.data());
+    in >> restored;
+
+    // restored.x == 7, restored.y == 9
+}
+```
+
+Unlike the protobuf adapter, there is no tag or length prefix per field -
+`Point` is a fixed 8-byte native layout. This is exactly the tradeoff
+described in [Guarantees](#guarantees) below: fast and compact, but not a
+portable cross-platform wire format by default.
+
 ## Public Surface
 
 - [`contract::adapters::binary::writer<Output>`](../../include/contract/adapters/binary.hpp)
