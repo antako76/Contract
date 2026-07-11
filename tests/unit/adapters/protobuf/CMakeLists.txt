@@ -1,0 +1,1 @@
+add_contract_test(contract_protobuf_adapter_test protobuf_adapter_test.cpp)

@@ -1,0 +1,32 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor and local tooling
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Logs and caches
+*.log
+.gmon.out
+gmon.out
+.cache/
+.pytest_cache/
+__pycache__/
+
+# Build artifacts
+dist/
+build/
+build-*/
+compile_commands.json
+
+# Archived/reference material
+/reference/
+docs/backup/

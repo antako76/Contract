@@ -1,0 +1,1 @@
+add_contract_test(contract_logging_test logging_test.cpp)

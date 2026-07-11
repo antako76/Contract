@@ -1,0 +1,2 @@
+add_contract_test(contract_debug_type_name_test debug_type_name_test.cpp)
+add_contract_test(contract_debug_format_test debug_format_test.cpp)

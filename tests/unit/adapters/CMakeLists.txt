@@ -1,0 +1,6 @@
+add_subdirectory(binary)
+add_subdirectory(compact)
+add_subdirectory(console)
+add_subdirectory(protobuf)
+add_subdirectory(json)
+add_subdirectory(yaml)

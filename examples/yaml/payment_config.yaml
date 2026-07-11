@@ -1,0 +1,7 @@
+service: payment
+port: 8080
+enabled: true
+tags:
+  - api
+  - payments
+  - production

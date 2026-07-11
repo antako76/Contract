@@ -1,0 +1,1 @@
+add_contract_test(contract_yaml_adapter_test yaml_adapter_test.cpp)

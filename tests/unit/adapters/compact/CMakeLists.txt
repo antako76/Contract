@@ -1,0 +1,1 @@
+add_contract_test(contract_compact_adapter_test compact_adapter_test.cpp)

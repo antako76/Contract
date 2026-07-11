@@ -1,0 +1,1 @@
+add_contract_test(contract_json_adapter_test json_adapter_test.cpp)

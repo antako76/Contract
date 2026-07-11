@@ -1,0 +1,16 @@
+add_executable(contract_example_smoke smoke.cpp)
+target_link_libraries(contract_example_smoke PRIVATE contract::contract)
+
+add_executable(contract_example_console_dump console_dump.cpp)
+target_link_libraries(contract_example_console_dump PRIVATE contract::contract)
+
+add_executable(contract_example_hero_roundtrip hero_roundtrip.cpp)
+target_link_libraries(contract_example_hero_roundtrip PRIVATE contract::contract)
+
+add_executable(contract_example_logging logging.cpp)
+target_link_libraries(contract_example_logging PRIVATE contract::contract)
+
+add_executable(contract_example_yaml_file_read yaml_file_read.cpp)
+target_link_libraries(contract_example_yaml_file_read PRIVATE contract::contract)
+target_compile_definitions(contract_example_yaml_file_read PRIVATE
+    CONTRACT_EXAMPLE_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")

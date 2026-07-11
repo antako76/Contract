@@ -1,0 +1,138 @@
+syntax = "proto3";
+
+package contract_bench;
+
+message NumericMessage {
+  uint64 id = 1;
+  uint32 count = 2;
+  double ratio = 3;
+  bool enabled = 4;
+}
+
+message TextMessage {
+  string name = 1;
+}
+
+message NestedMessage {
+  NumericMessage numeric = 1;
+  TextMessage text = 2;
+}
+
+message VectorMessage {
+  repeated uint32 values = 1;
+}
+
+message VectorMessage25 {
+  repeated uint32 values = 1;
+}
+
+message WideVectorMessage {
+  repeated uint32 values = 1;
+}
+
+message StringVectorMessage {
+  repeated string values = 1;
+}
+
+message WideStringVectorMessage {
+  repeated string values = 1;
+}
+
+message WideRecord {
+  uint64 id = 1;
+  int32 sequence = 2;
+  uint32 count = 3;
+  int64 big_flag = 4;
+  string name = 5;
+  string description = 6;
+  string tag = 7;
+  double ratio = 8;
+  float weight = 9;
+  bool enabled = 10;
+}
+
+message AllStringsMessage {
+  string first_name = 1;
+  string last_name = 2;
+  string email = 3;
+  string company = 4;
+  string department = 5;
+  string notes = 6;
+}
+
+enum Status {
+  STATUS_PENDING = 0;
+  STATUS_ACTIVE = 1;
+  STATUS_CLOSED = 2;
+}
+
+message AllNumbersMessage {
+  int32 a = 1;
+  uint32 b = 2;
+  int64 c = 3;
+  uint64 d = 4;
+  float e = 5;
+  double f = 6;
+  bool g = 7;
+  Status status = 8;
+}
+
+message BytesMessage {
+  bytes payload = 1;
+}
+
+message Int25Message {
+  uint32 f1 = 1;
+  uint32 f2 = 2;
+  uint32 f3 = 3;
+  uint32 f4 = 4;
+  uint32 f5 = 5;
+  uint32 f6 = 6;
+  uint32 f7 = 7;
+  uint32 f8 = 8;
+  uint32 f9 = 9;
+  uint32 f10 = 10;
+  uint32 f11 = 11;
+  uint32 f12 = 12;
+  uint32 f13 = 13;
+  uint32 f14 = 14;
+  uint32 f15 = 15;
+  uint32 f16 = 16;
+  uint32 f17 = 17;
+  uint32 f18 = 18;
+  uint32 f19 = 19;
+  uint32 f20 = 20;
+  uint32 f21 = 21;
+  uint32 f22 = 22;
+  uint32 f23 = 23;
+  uint32 f24 = 24;
+  uint32 f25 = 25;
+}
+
+message Str25Message {
+  string f1 = 1;
+  string f2 = 2;
+  string f3 = 3;
+  string f4 = 4;
+  string f5 = 5;
+  string f6 = 6;
+  string f7 = 7;
+  string f8 = 8;
+  string f9 = 9;
+  string f10 = 10;
+  string f11 = 11;
+  string f12 = 12;
+  string f13 = 13;
+  string f14 = 14;
+  string f15 = 15;
+  string f16 = 16;
+  string f17 = 17;
+  string f18 = 18;
+  string f19 = 19;
+  string f20 = 20;
+  string f21 = 21;
+  string f22 = 22;
+  string f23 = 23;
+  string f24 = 24;
+  string f25 = 25;
+}

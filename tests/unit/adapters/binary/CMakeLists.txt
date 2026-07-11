@@ -1,0 +1,3 @@
+add_contract_test(contract_binary_adapter_test binary_adapter_test.cpp)
+add_contract_test(contract_binary_mixed_roundtrip_test binary_mixed_roundtrip_test.cpp)
+add_contract_test(contract_binary_handling_test binary_handling_test.cpp)
