@@ -1,7 +1,7 @@
 # Console Adapter
 
 This page is the adapter-specific entry for console debug rendering.
-The shared public contract is in [`README.md`](README.md), and the implementation is split between [`../../../include/contract/adapters/console.hpp`](../../../include/contract/adapters/console.hpp) and [`../../../include/contract/adapters/console/all.hpp`](../../../include/contract/adapters/console/all.hpp).
+The shared public contract is in [`README.md`](README.md), and the implementation is split between [`../../include/contract/adapters/console.hpp`](../../include/contract/adapters/console.hpp) and [`../../include/contract/adapters/console/all.hpp`](../../include/contract/adapters/console/all.hpp).
 
 ## Implementation Note
 
@@ -9,14 +9,14 @@ This page is the current reference for console rendering behavior.
 
 ## Public Surface
 
-- [`contract::adapters::console::writer<Output>`](../../../include/contract/adapters/console.hpp)
+- [`contract::adapters::console::writer<Output>`](../../include/contract/adapters/console.hpp)
 - `writer.with(options)`
 - `writer.schema()`
 - `writer.debug()`
 - `writer.value()`
 - `writer << value`
-- [`contract::io::cout`](../../../include/contract/io/cout.hpp)
-- [`contract::cout`](../../../include/contract/cout.hpp) as the console-first preset facade
+- [`contract::io::cout`](../../include/contract/io/cout.hpp)
+- [`contract::cout`](../../include/contract/cout.hpp) as the console-first preset facade
 
 `debug()` is the richer audit preset: it keeps the schema view, enables the
 console defaults, and adds extra provenance such as flattened base provenance
@@ -24,14 +24,14 @@ in field comments.
 
 The lean `console.hpp` keeps the writer core, scalar/string codecs, and shared
 layout helpers. Container codecs live in the dedicated headers under
-[`../../../include/contract/adapters/console/`](../../../include/contract/adapters/console/),
-and [`../../../include/contract/adapters/console/all.hpp`](../../../include/contract/adapters/console/all.hpp)
+[`../../include/contract/adapters/console/`](../../include/contract/adapters/console/),
+and [`../../include/contract/adapters/console/all.hpp`](../../include/contract/adapters/console/all.hpp)
 includes the full set.
 
 ## Rendering Policy
 
 The console adapter splits responsibilities between `codec<T>`, `writer`, and
-the stateless helpers in [`../../../include/contract/adapters/debug/format.hpp`](../../../include/contract/adapters/debug/format.hpp).
+the stateless helpers in [`../../include/contract/adapters/debug/format.hpp`](../../include/contract/adapters/debug/format.hpp).
 
 - `codec<T>` owns the local render recipe for a type:
   - it chooses `block` or inline rendering;
@@ -116,7 +116,7 @@ count: 42                                # #101 u64, UserProfile+20
 name: "checkout"                         # #12 std::string_view, storage=char[64], custom_get
 ```
 
-Comment construction should be centralized in [`contract::adapters::debug`](../../../include/contract/adapters/debug/), not
+Comment construction should be centralized in [`contract::adapters::debug`](../../include/contract/adapters/debug/), not
 copied through printer branches.
 
 ## Type Names
@@ -126,7 +126,7 @@ The console adapter depends on stable, readable type names.
 Required core support:
 
 ```cpp
-[`contract::type_name<T>()`](../../../include/contract/definition.hpp) -> std::string_view
+[`contract::type_name<T>()`](../../include/contract/definition.hpp) -> std::string_view
 ```
 
 For contract types, the name should come from the contract macro through
@@ -138,7 +138,7 @@ CONTRACT(RequestEvent, ...)
 
 should preserve `"RequestEvent"` as the public contract type name.
 
-[`contract::adapters::debug`](../../../include/contract/adapters/debug/) should provide best-effort names for built-in and
+[`contract::adapters::debug`](../../include/contract/adapters/debug/) should provide best-effort names for built-in and
 common library types:
 
 ```text
@@ -229,7 +229,7 @@ headers:
   "x-request/id": "abc"
 ```
 
-[`std::unordered_map`](../../../include/contract/adapters/debug/type_name.hpp)
+[`std::unordered_map`](../../include/contract/adapters/debug/type_name.hpp)
 uses the same rendering rules, but the output follows native iteration order
 and is not sorted.
 
@@ -308,9 +308,9 @@ A genuinely binary field still falls back to hex as before:
 permissions: "10 2b 9a ..." # #8 std::array<std::byte,256>, bytes=256, truncated
 ```
 
-Byte blobs such as [`std::array<std::byte, N>`](../../../include/contract/adapters/console.hpp),
-[`std::array<unsigned char, N>`](../../../include/contract/adapters/console.hpp),
-[`std::array<char, N>`](../../../include/contract/adapters/console.hpp), raw
+Byte blobs such as [`std::array<std::byte, N>`](../../include/contract/adapters/console.hpp),
+[`std::array<unsigned char, N>`](../../include/contract/adapters/console.hpp),
+[`std::array<char, N>`](../../include/contract/adapters/console.hpp), raw
 byte/char arrays, and byte vectors are all eligible for the text preview.
 The hex preview length follows the writer's `max_byte_preview_length`
 option; the text preview follows `max_string_length`, the same limit used

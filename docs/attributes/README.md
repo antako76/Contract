@@ -18,7 +18,7 @@ specification and one adapter-rules spec. Keep that split:
 - `adapters.md` explains how adapter authors should structure their code.
 
 The common vocabularies are implemented as dedicated headers under
-[`include/contract/attributes/vocabularies/`](../../../include/contract/attributes/vocabularies/).
+[`include/contract/attributes/vocabularies/`](../../include/contract/attributes/vocabularies/).
 The canonical sources for `contract::schema::*`, `contract::check::*`,
 `contract::unit::*`, `contract::doc::*`, and `contract::security::*`
 declarations live there alongside their `attr_traits` specializations.

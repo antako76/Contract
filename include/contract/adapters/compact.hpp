@@ -1192,7 +1192,7 @@ private:
     read_status read_from_header(unsigned char header) {
         // Dispatch on the high nibble so the compiler builds a jump table
         // instead of a linear chain of range checks. The byte layout groups
-        // each value_kind into one nibble (see docs/contract/adapters/compact.md):
+        // each value_kind into one nibble (see docs/adapters/compact.md):
         // 0x0..0x3 zero/small_uint, 0x4 small_neg, 0x5 int_payload, 0x6 bytes,
         // 0x7 string, 0x8 array, 0x9 map, 0xa object, 0xb bool/null, 0xc float.
         switch (header >> 4) {

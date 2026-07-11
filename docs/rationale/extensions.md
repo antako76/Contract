@@ -5,7 +5,7 @@ core object model.
 
 ## Public Query Surface
 
-The core layer exposes a small query API in [`../../../include/contract/definition.hpp`](../../../include/contract/definition.hpp) and [`../../../include/contract/visit.hpp`](../../../include/contract/visit.hpp):
+The core layer exposes a small query API in [`../../include/contract/definition.hpp`](../../include/contract/definition.hpp) and [`../../include/contract/visit.hpp`](../../include/contract/visit.hpp):
 
 ```cpp
 contract::contract_of<T>();
@@ -29,7 +29,7 @@ The following override shapes stay important:
 - physical member override through member hooks;
 - physical member override through ADL-discovered free hooks;
 - logical/property field override through `contract_get` / `contract_set` and
-  [`contract::tag<...>`](../../../include/contract/tag.hpp).
+  [`contract::tag<...>`](../../include/contract/tag.hpp).
 
 The design rule is the same as before:
 

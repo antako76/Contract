@@ -7,7 +7,7 @@ This file tracks user-visible changes for CONTRACT releases.
 - Public release scaffolding added:
   - Apache-2.0 license;
   - root landing README;
-  - docs index under `docs/contract/`;
+  - docs index under `docs/`;
   - public contribution, security, and release policy files;
   - GitHub Actions CI;
   - runnable hero round-trip example.

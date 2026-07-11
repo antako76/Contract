@@ -138,6 +138,37 @@ well-bounded message shapes, but it is a poor fit when the caller wants to:
 - treat container shapes as first-class wire primitives;
 - avoid extra wrapper lengths and repeated passes over the data.
 
+## Performance
+
+Measured against real libprotobuf (3.21.12) with an optional benchmark
+(`benchmarks/protobuf_reference_benchmark.cpp`, gated behind
+`CONTRACT_BENCH_WITH_PROTOBUF`, off by default so the core library and tests
+carry no protobuf dependency).
+
+- Wire sizes match byte-for-byte in every measured scenario, including
+  negative int32/int64 sign extension - this is a real interop check, not
+  just a size estimate.
+- Pack is faster than libprotobuf in nearly every scenario, typically by
+  1.2x-3x (e.g. a single string field: ~0.3x of libprotobuf's time).
+- Unpack is faster in most scenarios (~0.4x-0.9x), with one known exception:
+  messages with many individual scalar integer fields of the same type (e.g.
+  25 separate `uint32_t` fields) unpack ~1.1-1.3x slower. This traces to
+  `read_varint`'s per-field dispatch cost on that specific shape; two
+  alternative decode strategies (a branchless multi-byte SWAR decoder, and
+  mirroring libprotobuf's own single-byte fast path) were tried and both
+  measured worse on this codebase's actual value distributions - see the
+  benchmark's git history for the disassembly-backed reasoning.
+- Repeated scalar fields, nested messages, and string-heavy messages show no
+  such gap - the effect is narrow to that field shape, not general.
+
+Run it yourself:
+
+```sh
+cmake -S . -B build -DCONTRACT_BENCH_WITH_PROTOBUF=ON
+cmake --build build --target contract_protobuf_reference_benchmark
+./build/benchmarks/contract_protobuf_reference_benchmark --iterations 200000
+```
+
 ## Implementation Limits
 
 - nested `CONTRACT` values are written as length-delimited messages;

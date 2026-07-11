@@ -6,29 +6,29 @@ layer, and which headers are intentionally opt-in.
 
 ## Canonical Public Entry Points
 
-- [`include/contract/contract.hpp`](../../include/contract/contract.hpp)
+- [`include/contract/contract.hpp`](../include/contract/contract.hpp)
   - core CONTRACT model
   - DSL macros
   - field graph, traversal helpers, adapter-facing metadata
-- [`include/contract/attribute.hpp`](../../include/contract/attribute.hpp)
+- [`include/contract/attribute.hpp`](../include/contract/attribute.hpp)
   - attribute policy entry point
   - resolution
   - validation
-- [`include/contract/check.hpp`](../../include/contract/check.hpp)
+- [`include/contract/check.hpp`](../include/contract/check.hpp)
   - check vocabulary
-- [`include/contract/security.hpp`](../../include/contract/security.hpp)
+- [`include/contract/security.hpp`](../include/contract/security.hpp)
   - security vocabulary
-- [`include/contract/schema.hpp`](../../include/contract/schema.hpp)
+- [`include/contract/schema.hpp`](../include/contract/schema.hpp)
   - schema vocabulary
-- [`include/contract/unit.hpp`](../../include/contract/unit.hpp)
+- [`include/contract/unit.hpp`](../include/contract/unit.hpp)
   - unit vocabulary
-- [`include/contract/doc.hpp`](../../include/contract/doc.hpp)
+- [`include/contract/doc.hpp`](../include/contract/doc.hpp)
   - documentation vocabulary
-- [`include/contract/io.hpp`](../../include/contract/io.hpp)
+- [`include/contract/io.hpp`](../include/contract/io.hpp)
   - I/O façade layer
-- [`include/contract/cout.hpp`](../../include/contract/cout.hpp)
+- [`include/contract/cout.hpp`](../include/contract/cout.hpp)
   - console-first preset facade
-- [`include/contract/logging.hpp`](../../include/contract/logging.hpp)
+- [`include/contract/logging.hpp`](../include/contract/logging.hpp)
   - structured newline-delimited JSON logging
   - event metadata, context, and named payload fields
 
@@ -38,19 +38,19 @@ Include adapters explicitly. Do not rely on a monolithic adapter umbrella.
 Each family has a lean entry-point header plus an `all.hpp` that pulls in every
 supported container codec for that family.
 
-- [`include/contract/adapters/binary.hpp`](../../include/contract/adapters/binary.hpp)
-  · [`binary/all.hpp`](../../include/contract/adapters/binary/all.hpp)
-- [`include/contract/adapters/compact.hpp`](../../include/contract/adapters/compact.hpp)
-  · [`compact/all.hpp`](../../include/contract/adapters/compact/all.hpp)
-- [`include/contract/adapters/protobuf.hpp`](../../include/contract/adapters/protobuf.hpp)
-  · [`protobuf/all.hpp`](../../include/contract/adapters/protobuf/all.hpp)
-- [`include/contract/adapters/console.hpp`](../../include/contract/adapters/console.hpp)
-  · [`console/all.hpp`](../../include/contract/adapters/console/all.hpp)
-- [`include/contract/adapters/json.hpp`](../../include/contract/adapters/json.hpp)
-  · [`json/all.hpp`](../../include/contract/adapters/json/all.hpp)
-- [`include/contract/adapters/yaml.hpp`](../../include/contract/adapters/yaml.hpp)
-  · [`yaml/all.hpp`](../../include/contract/adapters/yaml/all.hpp)
-- [`include/contract/adapters/schema.hpp`](../../include/contract/adapters/schema.hpp)
+- [`include/contract/adapters/binary.hpp`](../include/contract/adapters/binary.hpp)
+  · [`binary/all.hpp`](../include/contract/adapters/binary/all.hpp)
+- [`include/contract/adapters/compact.hpp`](../include/contract/adapters/compact.hpp)
+  · [`compact/all.hpp`](../include/contract/adapters/compact/all.hpp)
+- [`include/contract/adapters/protobuf.hpp`](../include/contract/adapters/protobuf.hpp)
+  · [`protobuf/all.hpp`](../include/contract/adapters/protobuf/all.hpp)
+- [`include/contract/adapters/console.hpp`](../include/contract/adapters/console.hpp)
+  · [`console/all.hpp`](../include/contract/adapters/console/all.hpp)
+- [`include/contract/adapters/json.hpp`](../include/contract/adapters/json.hpp)
+  · [`json/all.hpp`](../include/contract/adapters/json/all.hpp)
+- [`include/contract/adapters/yaml.hpp`](../include/contract/adapters/yaml.hpp)
+  · [`yaml/all.hpp`](../include/contract/adapters/yaml/all.hpp)
+- [`include/contract/adapters/schema.hpp`](../include/contract/adapters/schema.hpp)
   (single header)
 
 Per-container leaf headers live under each family directory so a TU can include

@@ -11,7 +11,7 @@ Related documents:
 Implementation note:
 
 - the canonical `contract::security::*` declarations and `attr_traits` specializations
-  live in [`include/contract/attributes/vocabularies/security.hpp`](../../../include/contract/attributes/vocabularies/security.hpp).
+  live in [`include/contract/attributes/vocabularies/security.hpp`](../../include/contract/attributes/vocabularies/security.hpp).
 
 ---
 

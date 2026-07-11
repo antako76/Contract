@@ -5,7 +5,7 @@ It is a separate layer: CONTRACT describes values, JSON serializes them, and
 the logger owns event metadata and record boundaries.
 
 For the JSON serialization side, see [`adapters/json.md`](adapters/json.md).
-For a runnable end-to-end example, see [`examples/logging.cpp`](../../examples/logging.cpp).
+For a runnable end-to-end example, see [`examples/logging.cpp`](../examples/logging.cpp).
 
 ```cpp
 #include <contract/logging.hpp>

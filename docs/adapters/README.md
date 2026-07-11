@@ -1,6 +1,6 @@
 # Adapter Layer
 
-[`contract::adapters`](../../../include/contract/adapters/README.md) owns the runtime behavior that turns contract metadata
+[`contract::adapters`](../../include/contract/adapters/README.md) owns the runtime behavior that turns contract metadata
 into a concrete representation.
 
 Use this page when you design or review any adapter family. It describes the
@@ -15,7 +15,7 @@ Exception and status/result policy is documented in
 The core contract layer defines the `CONTRACT` object model:
 fields, ids, names, access semantics, and compile-time traversal shape.
 
-See [`../core.md`](../core.md) for the class-level model, and [`../../../include/contract/contract.hpp`](../../../include/contract/contract.hpp) for the corresponding header.
+See [`../core.md`](../core.md) for the class-level model, and [`../../include/contract/contract.hpp`](../../include/contract/contract.hpp) for the corresponding header.
 
 The adapter layer defines behavior:
 
@@ -172,14 +172,14 @@ adapter-specific design notes to reference it.
 - Defines what a field is, how it is named, and what access capabilities it has.
 - Does not own adapter formatting policy or runtime render/layout state.
 
-#### [`contract::io`](../../../include/contract/io.hpp)
+#### [`contract::io`](../../include/contract/io.hpp)
 
 - Owns backend-facing I/O primitives and convenience facades.
 - May also expose optional contiguous windowed byte views for buffered backends.
-- Hosts top-level ready-to-use instances such as [`contract::io::cout`](../../../include/contract/io/cout.hpp).
+- Hosts top-level ready-to-use instances such as [`contract::io::cout`](../../include/contract/io/cout.hpp).
 - Does not own contract metadata or type-specific formatting policy.
 
-#### [`contract::adapters`](../../../include/contract/adapters/README.md)
+#### [`contract::adapters`](../../include/contract/adapters/README.md)
 
 - Owns adapter traversal plus rendering/encoding policy.
 - Contains the execution engine for a concrete adapter family.
@@ -211,7 +211,7 @@ adapter-specific design notes to reference it.
 #### `facade`
 
 - Thin convenience layer, usually in `contract::io` or a root alias header.
-- Example: [`contract::io::cout`](../../../include/contract/io/cout.hpp) and [`contract::cout`](../../../include/contract/cout.hpp).
+- Example: [`contract::io::cout`](../../include/contract/io/cout.hpp) and [`contract::cout`](../../include/contract/cout.hpp).
 - Must stay a thin re-export or default instance, not a second implementation path.
 
 ### Shared Entry Rules
@@ -323,9 +323,9 @@ vector<InnerContract>
 
 ### Facade Defaults
 
-- [`contract::io::cout`](../../../include/contract/io/cout.hpp) is the neutral convenience facade for stream-like I/O
+- [`contract::io::cout`](../../include/contract/io/cout.hpp) is the neutral convenience facade for stream-like I/O
 use.
-- [`contract::cout`](../../../include/contract/cout.hpp) is the console-first preset facade: it starts from the
+- [`contract::cout`](../../include/contract/cout.hpp) is the console-first preset facade: it starts from the
   schema/debug view and enables the human-friendly console defaults used by
   examples and interactive inspection.
 
@@ -348,7 +348,7 @@ In practice, each adapter family follows the same split:
 - `writer` / `reader` execute traversal and rendering or encoding;
 - `codec<T>` defines the type-specific shape inside that adapter family;
 - `session` carries one-run state when the adapter needs a prepass or layout;
-- facades in [`contract::io`](../../../include/contract/io.hpp) or root aliases stay thin and convenience-only.
+- facades in [`contract::io`](../../include/contract/io.hpp) or root aliases stay thin and convenience-only.
 
 ## Family Pages
 

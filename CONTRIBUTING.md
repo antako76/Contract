@@ -41,7 +41,7 @@ Prefer updating an existing example before introducing a new one.
 ## Before You Open a PR
 
 - Read the root [`README.md`](README.md) for the project landing page.
-- Read [`docs/contract/README.md`](docs/contract/README.md) for the layer docs index.
+- Read [`docs/README.md`](docs/README.md) for the layer docs index.
 - See [`RELEASE_POLICY.md`](RELEASE_POLICY.md) for branching, versioning, and release rules.
 - Prefer changes that keep the public surface small and explicit.
 - Keep shared contract rules in the layer docs, and adapter-specific behavior in the family pages.
@@ -54,7 +54,7 @@ Prefer updating an existing example before introducing a new one.
 - User-facing behavior changes are covered by tests in [`tests/`](tests/).
 - Example-facing changes are shown in [`examples/`](examples/).
 - Documentation changes keep the root README as the project landing page and
-  [`docs/contract/README.md`](docs/contract/README.md) as the docs index.
+  [`docs/README.md`](docs/README.md) as the docs index.
 
 ## Validation
 

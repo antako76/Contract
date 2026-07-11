@@ -79,7 +79,7 @@ visible but sensitive values must not leak.
 
 ## Example
 
-The repository test case [`tests/unit/adapters/json/json_adapter_test.cpp`](../../../tests/unit/adapters/json/json_adapter_test.cpp)
+The repository test case [`tests/unit/adapters/json/json_adapter_test.cpp`](../../tests/unit/adapters/json/json_adapter_test.cpp)
 shows:
 
 - nested contract objects;
@@ -96,7 +96,7 @@ shows:
 records on top of this writer. The logger owns the event envelope; JSON owns
 the serialization.
 
-The public example is [`examples/logging.cpp`](../../../examples/logging.cpp).
+The public example is [`examples/logging.cpp`](../../examples/logging.cpp).
 It combines a context object, a structured body, and typed attributes:
 
 ```cpp
@@ -134,8 +134,8 @@ the record shape and replaces sensitive values with `"<redacted>"`.
 
 ## Public Surface
 
-- [`contract::adapters::json::writer`](../../../include/contract/adapters/json.hpp)
-- [`contract::adapters::json::options`](../../../include/contract/adapters/json.hpp)
-- [`contract::adapters::json::security_mode`](../../../include/contract/adapters/json.hpp)
-- [`contract::adapters::json::to_string`](../../../include/contract/adapters/json.hpp)
-- [`contract/adapters/json/all.hpp`](../../../include/contract/adapters/json/all.hpp)
+- [`contract::adapters::json::writer`](../../include/contract/adapters/json.hpp)
+- [`contract::adapters::json::options`](../../include/contract/adapters/json.hpp)
+- [`contract::adapters::json::security_mode`](../../include/contract/adapters/json.hpp)
+- [`contract::adapters::json::to_string`](../../include/contract/adapters/json.hpp)
+- [`contract/adapters/json/all.hpp`](../../include/contract/adapters/json/all.hpp)

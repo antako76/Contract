@@ -47,8 +47,8 @@ This is the intended usage shape:
 
 The file-backed example used by the repository is:
 
-- [`examples/yaml_file_read.cpp`](../../../examples/yaml_file_read.cpp)
-- [`examples/yaml/payment_config.yaml`](../../../examples/yaml/payment_config.yaml)
+- [`examples/yaml_file_read.cpp`](../../examples/yaml_file_read.cpp)
+- [`examples/yaml/payment_config.yaml`](../../examples/yaml/payment_config.yaml)
 
 ## What It Supports
 
@@ -102,8 +102,8 @@ the protobuf adapter.
 
 ## Public Surface
 
-- [`contract::adapters::yaml::reader`](../../../include/contract/adapters/yaml.hpp)
-- [`contract::adapters::yaml::options`](../../../include/contract/adapters/yaml.hpp)
-- [`contract::adapters::yaml::parse_status`](../../../include/contract/adapters/yaml.hpp)
-- [`contract::adapters::yaml::parse_error`](../../../include/contract/adapters/yaml.hpp)
-- [`contract::adapters::yaml::all.hpp`](../../../include/contract/adapters/yaml/all.hpp)
+- [`contract::adapters::yaml::reader`](../../include/contract/adapters/yaml.hpp)
+- [`contract::adapters::yaml::options`](../../include/contract/adapters/yaml.hpp)
+- [`contract::adapters::yaml::parse_status`](../../include/contract/adapters/yaml.hpp)
+- [`contract::adapters::yaml::parse_error`](../../include/contract/adapters/yaml.hpp)
+- [`contract::adapters::yaml::all.hpp`](../../include/contract/adapters/yaml/all.hpp)

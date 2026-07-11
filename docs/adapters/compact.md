@@ -68,9 +68,9 @@ The CONTRACT object wire shape is implemented as the object value codec.
 adapter policy stays centralized without special-casing objects in
 `read_value` / `write_value`.
 
-Use [`contract::adapters::compact.hpp`](../../../include/contract/adapters/compact.hpp)
+Use [`contract::adapters::compact.hpp`](../../include/contract/adapters/compact.hpp)
 for the core adapter surface and
-[`contract::adapters::compact/all.hpp`](../../../include/contract/adapters/compact/all.hpp)
+[`contract::adapters::compact/all.hpp`](../../include/contract/adapters/compact/all.hpp)
 for the full container codec set.
 
 Accepted features for the compact adapter:

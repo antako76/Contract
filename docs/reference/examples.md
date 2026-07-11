@@ -53,7 +53,7 @@ contract::cout.value() << event;
 contract::cout.with(custom_options) << event;
 ```
 
-- [`contract::cout`](../../../include/contract/cout.hpp) starts from the console-first preset.
+- [`contract::cout`](../../include/contract/cout.hpp) starts from the console-first preset.
 - `debug()` adds richer provenance such as imported base offsets.
 - `value()` keeps the same object API but switches to the quieter value view.
 - `with(custom_options)` is the universal way to override the current config.
@@ -139,7 +139,7 @@ RequestEvent:
       role: "operator"
 ```
 
-If a neutral stream-like facade is needed, use [`contract::io::cout`](../../../include/contract/io/cout.hpp).
+If a neutral stream-like facade is needed, use [`contract::io::cout`](../../include/contract/io/cout.hpp).
 
 ```cpp
 contract::io::cout << event;
@@ -195,8 +195,8 @@ contract::cout.debug() << config;
 
 Concrete file-backed example:
 
-- [`examples/yaml_file_read.cpp`](../../../examples/yaml_file_read.cpp)
-- [`examples/yaml/payment_config.yaml`](../../../examples/yaml/payment_config.yaml)
+- [`examples/yaml_file_read.cpp`](../../examples/yaml_file_read.cpp)
+- [`examples/yaml/payment_config.yaml`](../../examples/yaml/payment_config.yaml)
 
 ## Logging
 
@@ -224,7 +224,7 @@ Each call writes one record, e.g.:
 Fields marked `contract::security::secret()`/`no_log()` are handled by the
 JSON adapter's security mode (see [`logging.md`](../logging.md) and
 [`adapters/json.md`](../adapters/json.md)); a runnable example with a redacted
-field is in [`examples/logging.cpp`](../../../examples/logging.cpp).
+field is in [`examples/logging.cpp`](../../examples/logging.cpp).
 
 ## Core Model
 
@@ -242,7 +242,7 @@ on adapter behavior.
 ## Example Rules
 
 - Prefer tiny examples that show the current public shape.
-- Prefer [`contract::cout`](../../../include/contract/cout.hpp) for console examples.
+- Prefer [`contract::cout`](../../include/contract/cout.hpp) for console examples.
 - Prefer `writer << value` / `reader >> value` for adapter examples.
 - Prefer `with(options)` when the example needs to show configuration.
 - Do not duplicate benchmark methodology here.

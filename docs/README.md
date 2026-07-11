@@ -5,7 +5,7 @@ Use it when you want the layer map, the shared adapter contract, and the
 technical notes that sit behind the repository landing page.
 
 If you want the product-style overview and the hero example, start at the
-repository [`README.md`](../../README.md).
+repository [`README.md`](../README.md).
 
 ## How To Read This Tree
 
@@ -47,12 +47,12 @@ repository [`README.md`](../../README.md).
 
 ## Public Entry Points
 
-- [`README.md`](../../README.md) at the repository root is the project landing page.
-- [`include/contract/contract.hpp`](../../include/contract/contract.hpp) is the canonical core entry point.
-- [`include/contract/attribute.hpp`](../../include/contract/attribute.hpp) is the policy entry point header.
-- [`include/contract/io.hpp`](../../include/contract/io.hpp) is the I/O façade header.
-- [`include/contract/cout.hpp`](../../include/contract/cout.hpp) is the console-first preset facade header.
-- [`include/contract/logging.hpp`](../../include/contract/logging.hpp) is the structured logging entry point.
+- [`README.md`](../README.md) at the repository root is the project landing page.
+- [`include/contract/contract.hpp`](../include/contract/contract.hpp) is the canonical core entry point.
+- [`include/contract/attribute.hpp`](../include/contract/attribute.hpp) is the policy entry point header.
+- [`include/contract/io.hpp`](../include/contract/io.hpp) is the I/O façade header.
+- [`include/contract/cout.hpp`](../include/contract/cout.hpp) is the console-first preset facade header.
+- [`include/contract/logging.hpp`](../include/contract/logging.hpp) is the structured logging entry point.
 - [`attributes/README.md`](attributes/README.md) is the attribute model and adapter enforcement index.
 - [`adapters/README.md`](adapters/README.md) is the shared public adapter contract.
 - [`include_map.md`](include_map.md) is the include-tree reference.
@@ -67,4 +67,4 @@ repository [`README.md`](../../README.md).
 ## Start Here
 
 - [Adapter Layer and Public Contract](adapters/README.md)
-- [Repository README](../../README.md) for the landing-page view
+- [Repository README](../README.md) for the landing-page view

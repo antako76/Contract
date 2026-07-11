@@ -1,7 +1,7 @@
 # CONTRACT Core
 
 This page describes the core contract metadata layer: the structural model of
-[`CONTRACT`](../../include/contract/contract.hpp) definitions before any adapter turns them into bytes or text.
+[`CONTRACT`](../include/contract/contract.hpp) definitions before any adapter turns them into bytes or text.
 
 ## Responsibilities
 
@@ -32,7 +32,7 @@ The core layer revolves around a small set of types:
 - `type_name` is the public contract name used by adapters and debug output.
 
 The current contract object is materialized with [`make_contract(type_name,
-fields...)`](../../include/contract/definition.hpp), and discovered through [`contract_of<T>()`](../../include/contract/definition.hpp).
+fields...)`](../include/contract/definition.hpp), and discovered through [`contract_of<T>()`](../include/contract/definition.hpp).
 
 Field entries can describe different access shapes:
 
@@ -67,13 +67,13 @@ adapters.
 
 The core layer exposes a small query surface that adapters build on:
 
-- [`contract_of<T>()`](../../include/contract/definition.hpp) resolves the contract definition for `T`;
-- [`flattened_fields_of<T>()`](../../include/contract/definition.hpp) returns the adapter-facing flattened field tuple;
-- [`type_name<T>()`](../../include/contract/definition.hpp) returns the public contract name for `T` as a `string_view`.
-- [`for_each_field<T>(fn)`](../../include/contract/visit.hpp) iterates the flattened field descriptors in declaration order;
-- [`field_count<T>()`](../../include/contract/visit.hpp) returns the number of flattened fields;
-- [`field_at<Index, T>()`](../../include/contract/visit.hpp) returns one flattened field descriptor by index;
-- [`visit(object, adapter)`](../../include/contract/visit.hpp) dispatches each flattened field into an adapter.
+- [`contract_of<T>()`](../include/contract/definition.hpp) resolves the contract definition for `T`;
+- [`flattened_fields_of<T>()`](../include/contract/definition.hpp) returns the adapter-facing flattened field tuple;
+- [`type_name<T>()`](../include/contract/definition.hpp) returns the public contract name for `T` as a `string_view`.
+- [`for_each_field<T>(fn)`](../include/contract/visit.hpp) iterates the flattened field descriptors in declaration order;
+- [`field_count<T>()`](../include/contract/visit.hpp) returns the number of flattened fields;
+- [`field_at<Index, T>()`](../include/contract/visit.hpp) returns one flattened field descriptor by index;
+- [`visit(object, adapter)`](../include/contract/visit.hpp) dispatches each flattened field into an adapter.
 
 These helpers are type-first. They make the declared contract discoverable
 without requiring adapters to depend on internal tuple storage or legacy

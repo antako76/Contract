@@ -3,17 +3,17 @@
 This page is the adapter-specific entry for the binary reader/writer pair.
 The shared public contract is in [`README.md`](README.md). The lean core
 implementation lives in
-[`../../../include/contract/adapters/binary.hpp`](../../../include/contract/adapters/binary.hpp),
+[`../../include/contract/adapters/binary.hpp`](../../include/contract/adapters/binary.hpp),
 and the standard container families are split into opt-in headers under
-[`../../../include/contract/adapters/binary/`](../../../include/contract/adapters/binary/).
+[`../../include/contract/adapters/binary/`](../../include/contract/adapters/binary/).
 Field/codec organization rules are described in [`README.md`](README.md).
 Exception and status/result policy is documented in
 [`../rationale/exceptions.md`](../rationale/exceptions.md).
 
 ## Public Surface
 
-- [`contract::adapters::binary::writer<Output>`](../../../include/contract/adapters/binary.hpp)
-- [`contract::adapters::binary::reader<Input>`](../../../include/contract/adapters/binary.hpp)
+- [`contract::adapters::binary::writer<Output>`](../../include/contract/adapters/binary.hpp)
+- [`contract::adapters::binary::reader<Input>`](../../include/contract/adapters/binary.hpp)
 - `writer.with(options)` when adapter-specific options exist
 - `writer << value`
 - `reader >> value`

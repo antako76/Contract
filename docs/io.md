@@ -8,7 +8,7 @@ and thin convenience facades that adapters can build on top of.
 - Own raw byte cursors and backing storage lifetime.
 - Expose byte-oriented read/write primitives.
 - Expose optional capabilities such as contiguous read views.
-- Host convenience facades like [`contract::io::cout`](../../include/contract/io/cout.hpp).
+- Host convenience facades like [`contract::io::cout`](../include/contract/io/cout.hpp).
 - Stay free of traversal, field metadata, and type-specific adapter policy.
 - Reduce external sources and sinks to a small byte contract; do not grow
   protocol-specific semantics here.
@@ -26,12 +26,12 @@ The I/O layer is intentionally small:
 - the backend owns cursor movement, bounds checks, and backing storage
   lifetime.
 
-The concrete backend types live in [`include/contract/io/byte.hpp`](../../include/contract/io/byte.hpp):
+The concrete backend types live in [`include/contract/io/byte.hpp`](../include/contract/io/byte.hpp):
 
 - `output` / `checked_output` for byte sinks;
 - `input` / `checked_input` for byte sources.
 
-File-backed helpers live in [`include/contract/io/file.hpp`](../../include/contract/io/file.hpp):
+File-backed helpers live in [`include/contract/io/file.hpp`](../include/contract/io/file.hpp):
 
 - `file_input` exposes streaming `read(...)`;
 - `file_buffer_input` reads the whole file into owned memory and exposes
@@ -71,7 +71,7 @@ This is a consumer-side contract. It does not imply producer-side buffer
 management.
 
 The repository also provides an optional Beast-backed adapter for this shape in
-[`include/contract/io/beast_window.hpp`](../../include/contract/io/beast_window.hpp):
+[`include/contract/io/beast_window.hpp`](../include/contract/io/beast_window.hpp):
 `flat_buffer_input` models the same `peek` / `consume` interface on top of
 `boost::beast::flat_buffer` when Boost.Beast headers are available.
 
@@ -108,11 +108,11 @@ through a second throwing sink abstraction.
 
 ## Facades
 
-[`contract::io::cout`](../../include/contract/io/cout.hpp) is the neutral convenience facade used by adapter code
+[`contract::io::cout`](../include/contract/io/cout.hpp) is the neutral convenience facade used by adapter code
 that wants a ready-to-use stream-like sink without console-specific presets.
 It is a ready-to-use object, not a second adapter family.
 
-[`contract/io.hpp`](../../include/contract/io.hpp) is the external convenience
+[`contract/io.hpp`](../include/contract/io.hpp) is the external convenience
 header for consumers that want the common lightweight I/O types in one place.
 Inside this repository, prefer direct includes of the specific backend headers
 instead of using the umbrella header.
@@ -123,12 +123,12 @@ Exception policy for the I/O layer is documented in
 Additional facades may exist when they are thin and ergonomic, but they should
 stay re-export-like and avoid becoming parallel public APIs.
 
-The console-first facade lives at [`contract::cout`](../../include/contract/cout.hpp) and is documented with the
+The console-first facade lives at [`contract::cout`](../include/contract/cout.hpp) and is documented with the
 adapter layer, not here.
 
 ## Public Surface
 
-- [`contract::io::cout`](../../include/contract/io/cout.hpp)
+- [`contract::io::cout`](../include/contract/io/cout.hpp)
 - backend `read` / `write` primitives
 - optional `read_view(size)` capability for backends that can provide it
 - optional `peek(size)` / `consume(size)` capability for contiguous windowed
@@ -145,12 +145,12 @@ adapter layer, not here.
 
 ## Core Backend Types
 
-The concrete backend types live in [`include/contract/io/byte.hpp`](../../include/contract/io/byte.hpp):
+The concrete backend types live in [`include/contract/io/byte.hpp`](../include/contract/io/byte.hpp):
 
 - `output` / `checked_output` for byte sinks;
 - `input` / `checked_input` for byte sources.
 
-[`include/contract/io/file.hpp`](../../include/contract/io/file.hpp) provides
+[`include/contract/io/file.hpp`](../include/contract/io/file.hpp) provides
 `file_input` for streaming reads and `file_buffer_input` for owned whole-file
 windowed reads.
 
@@ -162,12 +162,12 @@ benchmarks.
 
 ## Public Facade Policy
 
-[`contract::io::cout`](../../include/contract/io/cout.hpp) is the neutral convenience facade used by adapter code
+[`contract::io::cout`](../include/contract/io/cout.hpp) is the neutral convenience facade used by adapter code
 that wants a ready-to-use stream-like sink without console-specific presets.
 It is a ready-to-use object, not a second adapter family.
 
 Additional facades may exist when they are thin and ergonomic, but they should
 stay re-export-like and avoid becoming parallel public APIs.
 
-The console-first facade lives at [`contract::cout`](../../include/contract/cout.hpp) and is documented with the
+The console-first facade lives at [`contract::cout`](../include/contract/cout.hpp) and is documented with the
 adapter layer, not here.

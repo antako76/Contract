@@ -82,10 +82,10 @@ The reason is practical:
 - orchestration stays in one place;
 - the adapter can keep the fast path when no state is needed.
 
-## Why [`contract::cout`](../../../include/contract/cout.hpp) Is a Facade
+## Why [`contract::cout`](../../include/contract/cout.hpp) Is a Facade
 
-[`contract::io::cout`](../../../include/contract/io/cout.hpp) is the neutral convenience facade.
-[`contract::cout`](../../../include/contract/cout.hpp) is the console-first preset facade.
+[`contract::io::cout`](../../include/contract/io/cout.hpp) is the neutral convenience facade.
+[`contract::cout`](../../include/contract/cout.hpp) is the console-first preset facade.
 
 The difference is in defaults, not in a second implementation path.
 That gives us a human-friendly default for console output while keeping the raw
