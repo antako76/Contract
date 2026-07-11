@@ -93,12 +93,12 @@ struct HookedMetric {
 
     CONTRACT(HookedMetric, (raw_count, 1))
 
-    int contract_get(contract::tag<field::raw_count>) const {
+    int contract_get(contract::tag<contract_field::raw_count>) const {
         return raw_count * 10;
     }
 
     template<class Value>
-    void contract_set(contract::tag<field::raw_count>, Value&& value) {
+    void contract_set(contract::tag<contract_field::raw_count>, Value&& value) {
         raw_count = static_cast<int>(std::forward<Value>(value)) / 10;
     }
 };
@@ -118,11 +118,11 @@ struct RequestStat {
         (started_ns, 11),
         (finished_ns, 12))
 
-    std::uint64_t contract_get(contract::tag<field::duration_ns>) const {
+    std::uint64_t contract_get(contract::tag<contract_field::duration_ns>) const {
         return finished_ns - started_ns;
     }
 
-    void contract_set(contract::tag<field::duration_ns>, std::uint64_t value) {
+    void contract_set(contract::tag<contract_field::duration_ns>, std::uint64_t value) {
         finished_ns = started_ns + value;
     }
 };
@@ -146,12 +146,12 @@ struct ReferenceHookMetric {
 
     CONTRACT(ReferenceHookMetric, (raw_count, 1))
 
-    std::uint64_t contract_get(contract::tag<field::raw_count>) const {
+    std::uint64_t contract_get(contract::tag<contract_field::raw_count>) const {
         return raw_count * 10;
     }
 
     template<class Value>
-    void contract_set(contract::tag<field::raw_count>, Value&& value) {
+    void contract_set(contract::tag<contract_field::raw_count>, Value&& value) {
         raw_count = static_cast<std::uint64_t>(std::forward<Value>(value)) / 10;
     }
 };
@@ -202,12 +202,12 @@ struct FreeTagMetric {
     CONTRACT(FreeTagMetric, (raw_count, 1))
 };
 
-inline int contract_get(contract::tag<FreeTagMetric::field::raw_count>, const FreeTagMetric& metric) {
+inline int contract_get(contract::tag<FreeTagMetric::contract_field::raw_count>, const FreeTagMetric& metric) {
     return metric.raw_count * 1000;
 }
 
 template<class Value>
-inline void contract_set(contract::tag<FreeTagMetric::field::raw_count>, FreeTagMetric& metric, Value&& value) {
+inline void contract_set(contract::tag<FreeTagMetric::contract_field::raw_count>, FreeTagMetric& metric, Value&& value) {
     metric.raw_count = static_cast<int>(std::forward<Value>(value)) / 1000;
 }
 
@@ -221,12 +221,12 @@ struct FreePropertyStat {
         (high, 7))
 };
 
-template<class Field, std::enable_if_t<std::is_same_v<typename Field::tag, FreePropertyStat::field::delta>, int> = 0>
+template<class Field, std::enable_if_t<std::is_same_v<typename Field::tag, FreePropertyStat::contract_field::delta>, int> = 0>
 std::uint64_t contract_get(const Field&, const FreePropertyStat& stat) {
     return stat.high - stat.low;
 }
 
-template<class Field, class Value, std::enable_if_t<std::is_same_v<typename Field::tag, FreePropertyStat::field::delta>, int> = 0>
+template<class Field, class Value, std::enable_if_t<std::is_same_v<typename Field::tag, FreePropertyStat::contract_field::delta>, int> = 0>
 void contract_set(const Field&, FreePropertyStat& stat, Value&& value) {
     stat.high = stat.low + static_cast<std::uint64_t>(std::forward<Value>(value));
 }
@@ -242,14 +242,14 @@ struct FreeTagPropertyStat {
 };
 
 inline std::uint64_t contract_get(
-    contract::tag<FreeTagPropertyStat::field::delta>,
+    contract::tag<FreeTagPropertyStat::contract_field::delta>,
     const FreeTagPropertyStat& stat) {
     return stat.high - stat.low;
 }
 
 template<class Value>
 inline void contract_set(
-    contract::tag<FreeTagPropertyStat::field::delta>,
+    contract::tag<FreeTagPropertyStat::contract_field::delta>,
     FreeTagPropertyStat& stat,
     Value&& value) {
     stat.high = stat.low + static_cast<std::uint64_t>(std::forward<Value>(value));
@@ -265,12 +265,12 @@ struct ReferenceMetric {
     CONTRACT(ReferenceMetric, (raw_count, 1))
 };
 
-inline std::uint64_t contract_get(contract::tag<ReferenceMetric::field::raw_count>, const ReferenceMetric& metric) {
+inline std::uint64_t contract_get(contract::tag<ReferenceMetric::contract_field::raw_count>, const ReferenceMetric& metric) {
     return metric.raw_count * 10;
 }
 
 template<class Value>
-inline void contract_set(contract::tag<ReferenceMetric::field::raw_count>, ReferenceMetric& metric, Value&& value) {
+inline void contract_set(contract::tag<ReferenceMetric::contract_field::raw_count>, ReferenceMetric& metric, Value&& value) {
     metric.raw_count = static_cast<std::uint64_t>(std::forward<Value>(value)) / 10;
 }
 

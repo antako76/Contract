@@ -315,7 +315,7 @@
 #define CONTRACT_MAKE_ENTRY_0_BUILD(contract_self_type, name, id, ...) \
     ::contract::make_access_field_with_attributes< \
         contract_self_type, \
-        typename field::name, \
+        typename contract_field::name, \
         id>( \
             CONTRACT_STRINGIZE(name), \
             contract_access_##name{}, \
@@ -351,7 +351,7 @@
 #define CONTRACT_MAKE_ENTRY_2_4(contract_self_type, marker, name, id, type) \
     ::contract::make_property_field_with_attributes< \
         contract_self_type, \
-        typename field::name, \
+        typename contract_field::name, \
         id, \
         type>( \
             CONTRACT_STRINGIZE(name), \
@@ -360,7 +360,7 @@
 #define CONTRACT_MAKE_ENTRY_2_WITH_ATTRS(contract_self_type, marker, name, id, type, ...) \
     ::contract::make_property_field_with_attributes< \
         contract_self_type, \
-        typename field::name, \
+        typename contract_field::name, \
         id, \
         type>( \
             CONTRACT_STRINGIZE(name), \
@@ -417,7 +417,7 @@
 
 #define CONTRACT_DEFINE(contract_self_type, make_contract_expression, ...) \
     CONTRACT_PP_FOR_EACH_ARG(CONTRACT_DECLARE_ACCESS, contract_self_type, __VA_ARGS__) \
-    struct field { \
+    struct contract_field { \
         CONTRACT_PP_FOR_EACH(CONTRACT_DECLARE_FIELD_TAG, __VA_ARGS__) \
     }; \
     friend constexpr auto contract_definition(::contract::tag<contract_self_type>) { \
@@ -448,7 +448,7 @@
 
 #define CONTRACT_DEFINE_WITH_ATTRIBUTES(contract_self_type, attrs_entry, ...) \
     CONTRACT_PP_FOR_EACH_ARG(CONTRACT_DECLARE_ACCESS, contract_self_type, __VA_ARGS__) \
-    struct field { \
+    struct contract_field { \
         CONTRACT_PP_FOR_EACH(CONTRACT_DECLARE_FIELD_TAG, __VA_ARGS__) \
     }; \
     friend constexpr auto contract_definition(::contract::tag<contract_self_type>) { \

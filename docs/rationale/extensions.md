@@ -47,12 +47,12 @@ struct HookedMetric {
 
     CONTRACT(HookedMetric, (raw_count, 1))
 
-    int contract_get(contract::tag<field::raw_count>) const {
+    int contract_get(contract::tag<contract_field::raw_count>) const {
         return raw_count * 10;
     }
 
     template<class Value>
-    void contract_set(contract::tag<field::raw_count>, Value&& value) {
+    void contract_set(contract::tag<contract_field::raw_count>, Value&& value) {
         raw_count = static_cast<int>(std::forward<Value>(value)) / 10;
     }
 };

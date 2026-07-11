@@ -152,8 +152,8 @@ raw storage access and preserves qualifiers such as `volatile`.
 Physical fields can override adapter-facing access with member tag hooks:
 
 ```cpp
-contract_get(contract::tag<field::name>{})
-contract_set(contract::tag<field::name>{}, value)
+contract_get(contract::tag<contract_field::name>{})
+contract_set(contract::tag<contract_field::name>{}, value)
 ```
 
 If the class cannot be changed, define ADL-discovered free hooks in the same
@@ -163,8 +163,8 @@ namespace as the type:
 contract_get(field, object)
 contract_set(field, object, value)
 
-contract_get(contract::tag<field::name>{}, object)
-contract_set(contract::tag<field::name>{}, object, value)
+contract_get(contract::tag<contract_field::name>{}, object)
+contract_set(contract::tag<contract_field::name>{}, object, value)
 ```
 
 Resolution order:
@@ -200,8 +200,8 @@ descriptor hooks, free tag hooks, or member tag hooks:
 contract_get(field, object)
 contract_set(field, object, value)
 
-contract_get(contract::tag<field::name>{})
-contract_set(contract::tag<field::name>{}, value)
+contract_get(contract::tag<contract_field::name>{})
+contract_set(contract::tag<contract_field::name>{}, value)
 ```
 
 Property fields have `storage_type = void` and `value_type = type`.
@@ -213,9 +213,9 @@ Examples:
 struct User {
     std::uint64_t id;
 
-    std::uint64_t contract_get(contract::tag<field::id>) const;
+    std::uint64_t contract_get(contract::tag<contract_field::id>) const;
     template<class Value>
-    void contract_set(contract::tag<field::id>, Value&&);
+    void contract_set(contract::tag<contract_field::id>, Value&&);
 };
 ```
 
@@ -225,8 +225,8 @@ struct Wrapper {
     Target& value;
 };
 
-Target& contract_get(field::value, Wrapper& object);
-void contract_set(field::value, Wrapper& object, Target& value);
+Target& contract_get(contract_field::value, Wrapper& object);
+void contract_set(contract_field::value, Wrapper& object, Target& value);
 ```
 
 ```cpp
@@ -234,9 +234,9 @@ void contract_set(field::value, Wrapper& object, Target& value);
 struct Metric {
     PROPERTY(raw_count, 1, int)
 
-    int contract_get(contract::tag<field::raw_count>) const;
+    int contract_get(contract::tag<contract_field::raw_count>) const;
     template<class Value>
-    void contract_set(contract::tag<field::raw_count>, Value&&);
+    void contract_set(contract::tag<contract_field::raw_count>, Value&&);
 };
 ```
 

@@ -593,7 +593,7 @@ Adapter-specific hooks are allowed only for exceptional cases.
 ```cpp
 template<class Writer>
 void contract_wire_write(
-    contract::tag<field::payload>,
+    contract::tag<contract_field::payload>,
     Writer& out,
     const PayloadEvent& obj
 );

@@ -1067,12 +1067,12 @@ constexpr auto contract_definition(contract::tag<MetricsHeader>) {
         "MetricsHeader",
         contract::attrs(),
 
-        contract::field<&Self::service, field::service, 1>(
+        contract::field<&Self::service, contract_field::service, 1>(
             "service",
             contract::schema::type(contract::schema::string),
             contract::check::max_length(32)
         ),
-        contract::field<&Self::tenant, field::tenant, 2>(
+        contract::field<&Self::tenant, contract_field::tenant, 2>(
             "tenant",
             contract::schema::type(contract::schema::string),
             contract::check::max_length(64),
@@ -1088,8 +1088,8 @@ External `contract_get` / `contract_set` hooks are adapter-independent logical a
 They are not serialization hooks.
 
 ```cpp
-std::string_view contract_get(contract::tag<field::tenant>, const Header& h);
-void contract_set(contract::tag<field::tenant>, Header& h, std::string_view value);
+std::string_view contract_get(contract::tag<contract_field::tenant>, const Header& h);
+void contract_set(contract::tag<contract_field::tenant>, Header& h, std::string_view value);
 ```
 
 Adapter-specific hooks are allowed only as escape hatches.
@@ -1097,7 +1097,7 @@ Adapter-specific hooks are allowed only as escape hatches.
 ```cpp
 template<class Writer>
 void contract_wire_write(
-    contract::tag<field::payload>,
+    contract::tag<contract_field::payload>,
     Writer& out,
     const PayloadEvent& obj
 );

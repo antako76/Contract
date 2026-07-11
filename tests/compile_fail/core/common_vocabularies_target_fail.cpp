@@ -8,6 +8,9 @@
 #include <contract/schema.hpp>
 
 struct CommonVocabularyTargetFail {
+    int value = 0;
+
     CONTRACT(CommonVocabularyTargetFail,
-        ATTRS(contract::schema::type(contract::schema::string)))
+        ATTRS(contract::schema::type(contract::schema::string)),
+        (value, 1))
 };
