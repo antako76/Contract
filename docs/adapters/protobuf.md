@@ -5,6 +5,59 @@ This page describes the protobuf-compatible adapter family.
 See [`adapters/README.md`](README.md) for the shared adapter contract and
 execution split.
 
+## Example - Nested Message, Wire Bytes, Round-Trip
+
+```cpp
+#include <contract/adapters/protobuf/all.hpp>
+#include <contract/contract.hpp>
+#include <contract/io.hpp>
+
+#include <array>
+#include <cstdint>
+#include <string>
+
+struct Customer {
+    std::uint32_t id;
+    std::string name;
+
+    CONTRACT(Customer, (id, 1), (name, 2))
+};
+
+struct Order {
+    std::uint64_t order_id;
+    Customer customer;
+
+    CONTRACT(Order, (order_id, 1), (customer, 2))
+};
+
+int main() {
+    Order order{42, Customer{7, "kid"}};
+
+    std::array<unsigned char, 64> buffer{};
+    contract::adapters::protobuf::writer<> out(
+        contract::io::window_output{buffer.data(), buffer.size()});
+    out << order;
+
+    // 08 2a           tag 1 (varint), value 42
+    // 12 07           tag 2 (length-delimited), length 7
+    //   08 07           nested Customer: tag 1 (varint), value 7
+    //   12 03 6b 69 64  nested Customer: tag 2 (length-delimited), "kid"
+    const std::size_t written = out.position();
+
+    Order restored{};
+    contract::adapters::protobuf::reader<> in(
+        contract::io::window_input{buffer.data(), written});
+    in >> restored;
+
+    // restored.order_id == 42, restored.customer.name == "kid"
+}
+```
+
+The wire bytes above are exactly what a `.proto`-generated `Order { uint64
+order_id = 1; Customer customer = 2; }` message would produce - the same
+schema declaration drives both the C++ struct's shape and the wire mapping,
+with no separate `.proto` file or code generation step.
+
 ## Scope
 
 The adapter encodes and decodes protobuf-compatible wire data for `CONTRACT`

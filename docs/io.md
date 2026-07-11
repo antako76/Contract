@@ -106,6 +106,27 @@ When a backend can provide a contiguous writable window, adapters can build
 encode paths that write directly into the destination buffer without going
 through a second throwing sink abstraction.
 
+For example, the protobuf adapter's varint encoder writes straight into the
+window instead of building the value in a stack buffer first
+([`include/contract/adapters/protobuf.hpp`](../include/contract/adapters/protobuf.hpp)):
+
+```cpp
+auto window = out_.prepare(10); // 10 bytes always fits any 64-bit varint
+if (window.size() >= 10) {
+    std::size_t count = 0;
+    std::uint64_t v = value;
+    while (v >= 0x80u) {
+        window[count] = static_cast<std::byte>((v & 0x7fu) | 0x80u);
+        ++count;
+        v >>= 7;
+    }
+    window[count] = static_cast<std::byte>(v);
+    ++count;
+    out_.commit(count);
+    return write_status::ok;
+}
+```
+
 ## Facades
 
 [`contract::io::cout`](../include/contract/io/cout.hpp) is the neutral convenience facade used by adapter code
@@ -142,32 +163,3 @@ adapter layer, not here.
 - [`adapters/binary.md`](adapters/binary.md)
 - [`reference/examples.md`](reference/examples.md)
 - [`reference/benchmarks.md`](reference/benchmarks.md)
-
-## Core Backend Types
-
-The concrete backend types live in [`include/contract/io/byte.hpp`](../include/contract/io/byte.hpp):
-
-- `output` / `checked_output` for byte sinks;
-- `input` / `checked_input` for byte sources.
-
-[`include/contract/io/file.hpp`](../include/contract/io/file.hpp) provides
-`file_input` for streaming reads and `file_buffer_input` for owned whole-file
-windowed reads.
-
-The checked variants bound reads or writes to a known span and report failure
-by returning a short/zero result (`write` returns the bytes written, `read`
-and `read_view` signal truncation with `0` / `nullptr`); they do not throw.
-The unchecked variants are the minimal fast path used by trusted inputs and
-benchmarks.
-
-## Public Facade Policy
-
-[`contract::io::cout`](../include/contract/io/cout.hpp) is the neutral convenience facade used by adapter code
-that wants a ready-to-use stream-like sink without console-specific presets.
-It is a ready-to-use object, not a second adapter family.
-
-Additional facades may exist when they are thin and ergonomic, but they should
-stay re-export-like and avoid becoming parallel public APIs.
-
-The console-first facade lives at [`contract::cout`](../include/contract/cout.hpp) and is documented with the
-adapter layer, not here.

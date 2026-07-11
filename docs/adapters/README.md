@@ -321,6 +321,51 @@ vector<InnerContract>
   -> the vector codec does not invent a fake child field
 ```
 
+In real code, the binary adapter's `std::string` codec shows both overloads
+side by side
+([`include/contract/adapters/binary.hpp`](../../include/contract/adapters/binary.hpp)):
+
+```cpp
+template<>
+struct codec<std::string, void> {
+    // value-only: no field contract, used for non-field payloads
+    // (e.g. a vector<std::string> element)
+    template<class Writer>
+    static write_status write(Writer& out, const std::string& value) {
+        const std::size_t size = value.size();
+        if (out.write_value(size) == write_status::error) {
+            return write_status::error;
+        }
+        if (value.empty()) {
+            return write_status::ok;
+        }
+        return out.write(value.data(), size);
+    }
+
+    // field-aware: receives the full field contract, so it can enforce
+    // field-level attributes (max_length/max_bytes here) before falling
+    // through to the value-only overload above
+    template<class Writer, class Field>
+    static write_status write(Writer& out, const Field& field, const std::string& value) {
+        if (const auto limit = attributes::max_length_limit(field); limit && value.size() > *limit) {
+            return out.error()
+                .code(write_error_code::max_length_exceeded)
+                .field(field)
+                .stage(write_stage::attribute_guard)
+                .sizes(*limit, value.size());
+        }
+        if (const auto limit = attributes::max_bytes_limit(field); limit && value.size() > *limit) {
+            return out.error()
+                .code(write_error_code::max_bytes_exceeded)
+                .field(field)
+                .stage(write_stage::attribute_guard)
+                .sizes(*limit, value.size());
+        }
+        return write(out, value);
+    }
+};
+```
+
 ### Facade Defaults
 
 - [`contract::io::cout`](../../include/contract/io/cout.hpp) is the neutral convenience facade for stream-like I/O

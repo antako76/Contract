@@ -1,6 +1,12 @@
 # CONTRACT Benchmark Reference
 
-This page defines how benchmark fixtures for CONTRACT should be structured.
+This page defines how benchmark fixtures for CONTRACT should be structured,
+for benchmarks that compare a CONTRACT adapter against equivalent handwritten
+C++ code (the snapshot below is the binary adapter track).
+
+For a benchmark against a real third-party library instead of handwritten
+code, see the protobuf adapter's comparison against real libprotobuf in
+[`adapters/protobuf.md#performance`](../adapters/protobuf.md#performance).
 
 ## Reference Result Snapshot
 

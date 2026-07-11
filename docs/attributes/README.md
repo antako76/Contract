@@ -57,6 +57,22 @@ Explicit attribute rules remain authoritative over tag-based grouping.
 The first three layers are static metadata. The last four are about adapter
 behavior.
 
+Concretely, the first step - `attribute` declared in a `CONTRACT(...)` entry -
+looks like this
+([`tests/unit/adapters/console/console_security_test.cpp`](../../tests/unit/adapters/console/console_security_test.cpp)):
+
+```cpp
+CONTRACT(SecretRecord,
+    (password, 1, contract::security::secret()),
+    (tokens, 2, contract::security::no_log()),
+    (profile, 3, contract::security::sensitive()),
+    (note, 4)) // no attribute - the console adapter renders it normally
+```
+
+`contract::security` is the vocabulary here; `secret`/`no_log`/`sensitive` are
+the attributes it defines. [`security.md`](security.md) covers what each one
+means and how adapters are expected to react to it.
+
 ## Mental Model
 
 ```text
@@ -98,38 +114,17 @@ Important distinctions:
 | `attribute mode` | how a visible attribute is handled |
 | `guarantee surface` | the validated behavior set the adapter can promise |
 
-## What Lives Where
+## Where To Go Next
 
-Use the documents this way:
+Read in this order:
 
-- Read [`attributes.md`](attributes.md) to understand the canonical attribute
-  model, DSL, query helpers, and composition rules.
-- Read [`adapter_scopes.md`](adapter_scopes.md) to understand how adapter type,
-  visibility, and adapter rules relate.
-- Read [`security.md`](security.md) when the attribute vocabulary involves
-  secrets, redaction, or disclosure control.
-- Read [`adapters.md`](adapters.md) when implementing an adapter.
-
-## Core Documents
-
-- [`attributes.md`](attributes.md) - the canonical attribute model (implemented).
-- [`vision.md`](vision.md) - designed but not-yet-implemented parts of the model.
-- [`adapter_scopes.md`](adapter_scopes.md) - adapter visibility and rule matrix.
-- [`security.md`](security.md) - security attribute behavior.
-- [`adapters.md`](adapters.md) - adapter author guidance.
-
-## Reading Order
-
-1. Start with [`attributes.md`](attributes.md) for the canonical model.
-2. Read [`adapter_scopes.md`](adapter_scopes.md) for adapter visibility and rule matrix.
-3. Read [`security.md`](security.md) for practical security behavior.
-4. Use [`adapters.md`](adapters.md) when you are implementing an adapter.
-
-## Practical Rule
-
-If you need to answer a question about:
-
-- "what does this attribute mean?" go to `attributes.md`;
-- "can this adapter see it?" go to `adapter_scopes.md`;
-- "what does the adapter do with it?" go to `adapter_scopes.md`;
-- "how should I implement it?" go to `adapters.md`;
+1. [`attributes.md`](attributes.md) - "what does this attribute mean?" - the
+   canonical model, DSL, query helpers, and composition rules (implemented).
+2. [`adapter_scopes.md`](adapter_scopes.md) - "can this adapter see it, and
+   what does it do with it?" - adapter type, visibility, and rule matrix.
+3. [`security.md`](security.md) - "how do secrets/redaction actually behave?"
+   - practical security vocabulary examples.
+4. [`adapters.md`](adapters.md) - "how do I implement an adapter against
+   this?" - adapter author guidance.
+5. [`vision.md`](vision.md) - designed but not-yet-implemented parts of the
+   model (projection vocabularies, fingerprints, validation modes).

@@ -98,6 +98,33 @@ For maximum throughput:
 - keep checked throwing wrappers separate from the fast path;
 - prefer `assert` for caller bugs in debug builds.
 
+For example, the protobuf adapter's status-based `write_value(...)` is the hot
+path; `operator<<` is the thin convenience wrapper around it that throws
+([`include/contract/adapters/protobuf.hpp`](../../include/contract/adapters/protobuf.hpp)):
+
+```cpp
+template<class T>
+writer& operator<<(const T& value) {
+    using value_type = contract::adapters::base::clean_t<T>;
+    error_.reset();
+    const auto status = write_value(value);
+    if (status == write_status::error) {
+        if constexpr (contract::adapters::base::has_contract_definition<value_type>) {
+            error().type_name(contract::type_name<value_type>())
+                .stage(detail::write_stage::message_root);
+        }
+        throw std::runtime_error(error_message());
+    }
+    // ... (compile-time check that value_type is a CONTRACT type, elided)
+    return *this;
+}
+```
+
+Nothing inside `write_value(...)` itself throws for a malformed or
+insufficient buffer - it returns `write_status::error` and lets the caller
+decide. Only this outer, optional convenience boundary turns that into an
+exception.
+
 ## Practical Guidance
 
 - `file_input` open failure may throw.

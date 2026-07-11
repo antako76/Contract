@@ -29,19 +29,27 @@ virtual dispatch;
 vendor runtime.
 ```
 
-Adapters own runtime behavior:
+Adapters own runtime behavior. Implemented today:
 
 ```text
-protobuf wire adapter;
-.proto generator/checker;
-FlatBuffers schema/builder bridge;
-Alpaca/custom binary adapter;
-Glaze/JSON/MsgPack bridge;
-debug dump adapter;
-backup/restore adapter;
-log/redaction adapter;
-visualization adapter;
-export adapter.
+protobuf wire adapter    (include/contract/adapters/protobuf.hpp)
+binary adapter           (include/contract/adapters/binary.hpp)
+compact adapter          (include/contract/adapters/compact.hpp)
+console/debug adapter    (include/contract/adapters/console.hpp)
+JSON adapter             (include/contract/adapters/json.hpp)
+YAML adapter             (include/contract/adapters/yaml.hpp)
+schema dump adapter      (include/contract/adapters/schema.hpp)
+structured logging       (include/contract/logging.hpp, built on the JSON adapter)
+```
+
+The same layer split also supports adapter shapes that do not exist yet -
+these are illustrative, not a commitment:
+
+```text
+.proto generator/checker      - export a schema for other-language bindings
+FlatBuffers schema/builder bridge
+Alpaca/MsgPack bridge
+visualization adapter
 ```
 
 ## Object-Based Public API

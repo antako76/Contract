@@ -60,6 +60,25 @@ Useful checks include:
 - property field read/write constraints;
 - generated schema / bridge checks.
 
+Field id uniqueness is not just a convention - it is a compile-time check.
+Two fields sharing an id fail to compile
+([`tests/compile_fail/core/duplicate_id_fail.cpp`](../../tests/compile_fail/core/duplicate_id_fail.cpp)):
+
+```cpp
+struct DuplicateId {
+    int first = 0;
+    int second = 0;
+
+    CONTRACT(DuplicateId, (first, 1), (second, 1)) // both use id 1
+};
+```
+
+```text
+error: static assertion failed due to requirement
+'contract::detail::unique_field_ids<...>::value':
+CONTRACT field ids must be unique after BASE offsets are applied
+```
+
 ## Design Rule
 
 Keep compatibility explicit, incremental, and checkable.

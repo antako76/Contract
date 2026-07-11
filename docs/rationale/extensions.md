@@ -37,41 +37,81 @@ The design rule is the same as before:
 - keep it incremental;
 - keep it separate from adapter behavior.
 
-## Field Policies
+A member hook overrides get/set for one field without changing its physical
+storage type
+([`tests/contract_test_types.hpp`](../../tests/contract_test_types.hpp)):
 
-Field-specific adapter behavior belongs in a field policy layer:
+```cpp
+struct HookedMetric {
+    int raw_count = 0;
 
-```text
-field_policy<Adapter, Field>
+    CONTRACT(HookedMetric, (raw_count, 1))
+
+    int contract_get(contract::tag<field::raw_count>) const {
+        return raw_count * 10;
+    }
+
+    template<class Value>
+    void contract_set(contract::tag<field::raw_count>, Value&& value) {
+        raw_count = static_cast<int>(std::forward<Value>(value)) / 10;
+    }
+};
 ```
 
-This is the right extension point for:
+An ADL-discovered free function does the same thing without adding members to
+the type - useful when the type itself cannot be changed:
 
-- PII masking;
-- skip rules;
-- adapter-specific field behavior;
-- field-level debug redaction.
+```cpp
+template<class Field>
+int contract_get(const Field&, const FreeHookMetric& metric) {
+    return metric.raw_count * 100;
+}
+```
 
-Field policies should not become a second contract model. They are adapter-side
-behavior for a specific field.
+## Field Policies
+
+Field-specific adapter behavior is expressed through the attribute system:
+attributes declared on a field in `CONTRACT(...)`, resolved per adapter
+through visibility and `attribute_rules`. See
+[`attributes/README.md`](../attributes/README.md) for the full model.
+
+This is the extension point actually used today for:
+
+- PII masking and redaction - `contract::security::secret()` /
+  `sensitive()`, resolved by the console and JSON adapters
+  ([`attributes/security.md`](../attributes/security.md));
+- skip rules - `contract::security::no_log()`;
+- adapter-specific field behavior - an adapter declares its own
+  `attribute_rules` over the vocabularies it cares about
+  ([`attributes/adapters.md`](../attributes/adapters.md)).
+
+Attributes should not become a second contract model. They are adapter-side
+behavior for a specific field, resolved through the shared attribute
+pipeline, not a parallel per-adapter dispatch mechanism.
 
 ## Type Codecs
 
-Type-specific adapter behavior belongs in a codec layer:
+Type-specific adapter behavior belongs in a `codec<T>` specialization inside
+the owning adapter namespace - for example
+`contract::adapters::binary::codec<std::string>` or
+`contract::adapters::protobuf::codec<std::vector<T>>`. Each adapter family
+specializes `codec<T>` for the value types it supports; see
+[`adapters/README.md`](../adapters/README.md#field-codec-and-traversal-rules)
+for the field-aware vs. value-only overload split every family follows.
 
-```text
-type_codec<Adapter, T>
-```
+This is the extension point actually used today for:
 
-This is the right extension point for:
-
-- custom wire shapes;
-- scalar-like special handling;
+- custom wire shapes (e.g. protobuf's length-delimited `bytes`/`string`
+  encoding vs. binary's length-prefixed form);
+- scalar-like special handling (e.g. `char[N]` mapping to a fixed-size
+  `bytes` field instead of a repeated block);
 - borrowed/owning type behavior;
-- container or composite encoding rules;
-- adapter-specific type extensions.
+- container or composite encoding rules (`std::vector`, `std::variant`,
+  `std::map`, and similar).
 
-Type codecs should stay separate from field policies.
+Codecs should stay separate from field-level attribute handling: a codec
+knows the shape of a type; attribute resolution decides whether and how a
+field's value reaches that codec at all.
 
 In general, adapters should expose shared low-level primitives, and codecs
 should compose those primitives into a type-specific shape. Formatting helpers
@@ -100,5 +140,5 @@ Keep the core compact, and make extension points explicit:
 
 - core exposes the graph and query surface;
 - adapters own runtime behavior;
-- field policy handles field-specific adapter behavior;
-- type codec handles type-specific adapter behavior.
+- attribute resolution handles field-specific adapter behavior;
+- `codec<T>` handles type-specific adapter behavior.

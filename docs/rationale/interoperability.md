@@ -58,10 +58,22 @@ thing.
 
 ## Protobuf and Similar Formats
 
-Protocol-buffer-like systems are a good example of the bridge case.
+Protocol-buffer-like systems are a good example of the bridge case in
+general, but CONTRACT's own protobuf adapter today is a **direct adapter**,
+not a bridge: it walks CONTRACT descriptors and writes protobuf wire bytes
+directly, with no `.proto` file or code generation step. Wire output matches
+real libprotobuf byte-for-byte, and pack/unpack throughput is faster than
+libprotobuf in most measured scenarios - see
+[`adapters/protobuf.md`](../adapters/protobuf.md#performance) for the
+benchmark.
 
-The useful CONTRACT role is not to replace protobuf semantics. The useful role
-is to provide:
+A `.proto`-generating bridge (export a schema for other-language bindings) is
+a real possibility given CONTRACT's existing field metadata, but is not built
+today - there is no current need for it, so it stays a roadmap idea rather
+than committed work.
+
+The useful CONTRACT role for a bridge, if one is built, is not to replace
+protobuf semantics. The useful role is to provide:
 
 - stable field ids;
 - explicit field names;

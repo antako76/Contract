@@ -34,6 +34,19 @@ From the surrounding ecosystem, CONTRACT keeps the parts that proved valuable:
 - small public query surface;
 - separation between model, policy, and wire shape.
 
+In practice, "explicit field metadata" and "no forced code generation" both
+come from the same declaration - no `.proto` file, no generator step, no
+separate schema language to keep in sync with the C++ type:
+
+```cpp
+struct Customer {
+    std::uint32_t id;
+    std::string name;
+
+    CONTRACT(Customer, (id, 1), (name, 2))
+};
+```
+
 ## What CONTRACT Does Not Copy
 
 CONTRACT deliberately does not copy the parts that make other systems awkward
