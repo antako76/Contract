@@ -13,14 +13,13 @@ namespace contract::adapters::protobuf {
 
 namespace detail {
 
+// Synthetic positional descriptor for one tuple element. It deliberately
+// declares no field_kind and no import origin: it is not a CONTRACT field,
+// and kind-aware diagnostics skip descriptors without them.
 template<std::size_t Index>
 struct tuple_element_field {
     static constexpr std::uint32_t id = static_cast<std::uint32_t>(Index + 1);
     static constexpr std::string_view name{};
-    static constexpr bool is_base_import = false;
-    static constexpr bool is_member_field = false;
-    static constexpr bool is_reference_field = false;
-    static constexpr bool is_property_field = false;
 };
 
 } // namespace detail

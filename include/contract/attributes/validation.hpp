@@ -75,10 +75,7 @@ struct ignore_validation_entry {
 };
 
 template<class Field>
-struct declared_field_id : std::integral_constant<int, Field::id> {};
-
-template<class Field, int Offset>
-struct declared_field_id<offset_field<Field, Offset>> : declared_field_id<Field> {};
+struct declared_field_id : std::integral_constant<int, Field::declared_id> {};
 
 constexpr attribute_validation_issue validation_issue_for(
     attribute_resolution resolution) {

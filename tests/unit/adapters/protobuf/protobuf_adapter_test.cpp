@@ -267,8 +267,17 @@ int main() {
         assert(message.find("field number zero") != std::string::npos);
         assert(message.find("children") != std::string::npos);
         assert(message.find("element #0") != std::string::npos);
-        assert(message.find("created at contract/adapters/protobuf/vector.hpp:74") != std::string::npos);
-        assert(message.find("contract::adapters::protobuf::codec<std::vector<T>, void>::read") != std::string::npos);
+        // The trace points to where the error was first created (inside the
+        // nested ProtoChild's own read_message), not to vector.hpp's transfer
+        // point - error creation is attributed to its origin, not re-created
+        // where a parent later transfers it. Deliberately no line number (goes
+        // stale on unrelated protobuf.hpp edits) and no exact function
+        // signature text (compiler-specific pretty-printing: clang emits
+        // "T = (anonymous namespace)::ProtoChild", gcc emits
+        // "with T = {anonymous}::ProtoChild" - neither is portable).
+        assert(message.find("created at contract/adapters/protobuf.hpp") != std::string::npos);
+        assert(message.find("read_message") != std::string::npos);
+        assert(message.find("ProtoChild") != std::string::npos);
     }
     assert(malformed_children_thrown);
 
@@ -571,7 +580,7 @@ int main() {
     assert(duplicate_tuple_thrown);
 
     const unsigned char missing_tuple[] = {
-        0x5a, 0x0a,
+        0x5a, 0x08,
         0x08, 0x11,
         0x12, 0x04, 0x73, 0x6c, 0x6f, 0x74,
     };

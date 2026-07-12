@@ -56,7 +56,8 @@ The public repository may include:
 - [`include/contract/`](include/contract/)
 - [`examples/`](examples/)
 - [`tests/`](tests/)
-- [`docs/contract/`](docs/contract/)
+- [`benchmarks/`](benchmarks/)
+- [`docs/`](docs/)
 - root project files such as [`README.md`](README.md), [`LICENSE`](LICENSE),
   [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md), and this
   release policy.

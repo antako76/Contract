@@ -6,6 +6,8 @@
 
 #include <contract/definition.hpp>
 
+#include <cstdint>
+#include <string_view>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -64,5 +66,80 @@ constexpr void visit(const Object& obj, Adapter&& adapter) {
 
 template<class Object, class Adapter>
 constexpr void visit(Object&&, Adapter&&) = delete;
+
+namespace detail {
+
+// A fold expression over one id compare per field, not a recursive chain:
+// the compiler can turn this into a jump table for dense ids, the same way a
+// literal switch would, without macro-generated case labels (which can't
+// cross a BASE import's type boundary). Works uniformly across BASE because
+// it walks the already-flattened field tuple (effective ids), not raw
+// entries. fn must be called from within this same fold, at the point of the
+// match - resolving the index first and acting on it in a second pass
+// defeats the fusion into one dispatch and each pass degrades to a plain
+// compare chain. always_inline: without it the compiler does not fold this
+// into a caller's loop for wider messages.
+template<class T, class Fn, std::size_t... Is>
+[[gnu::always_inline]] constexpr bool dispatch_field_by_id_impl(
+    std::uint64_t id, Fn& fn, std::index_sequence<Is...>) {
+    bool found = false;
+    auto try_field = [&]<std::size_t Index>() {
+        if (found || static_cast<std::uint64_t>(field_at<Index, T>().id) != id) {
+            return;
+        }
+        fn(field_at<Index, T>());
+        found = true;
+    };
+    (try_field.template operator()<Is>(), ...);
+    return found;
+}
+
+} // namespace detail
+
+// Calls fn(field) for the declared field whose effective id matches `id` and
+// returns true, or returns false without calling fn if none matches. Callers
+// own everything about the not-found case (e.g. constructing an
+// adapter-specific error) - this utility only finds and invokes. `id` is
+// uint64_t so wire formats with a wider field id (e.g. compact) and ones with
+// a narrower one (e.g. protobuf's uint32_t field numbers) share one utility.
+template<class T, class Fn>
+[[gnu::always_inline]] constexpr bool dispatch_field_by_id(std::uint64_t id, Fn&& fn) {
+    using object_type = std::remove_cvref_t<T>;
+    return detail::dispatch_field_by_id_impl<object_type>(
+        id, fn, std::make_index_sequence<field_count<object_type>()>{});
+}
+
+namespace detail {
+
+// Same fused-fold shape as dispatch_field_by_id_impl, keyed by name instead
+// of id. fn also receives the matched field's index (as a plain runtime
+// value, known at the call site at compile time) since callers keyed by
+// name commonly need it for per-field bookkeeping (e.g. duplicate/missing
+// key tracking) that id-keyed formats don't.
+template<class T, class Fn, std::size_t... Is>
+[[gnu::always_inline]] constexpr bool dispatch_field_by_name_impl(
+    std::string_view name, Fn& fn, std::index_sequence<Is...>) {
+    bool found = false;
+    auto try_field = [&]<std::size_t Index>() {
+        if (found || field_at<Index, T>().name != name) {
+            return;
+        }
+        fn(field_at<Index, T>(), Index);
+        found = true;
+    };
+    (try_field.template operator()<Is>(), ...);
+    return found;
+}
+
+} // namespace detail
+
+// Calls fn(field, index) for the declared field whose name matches `key` and
+// returns true, or returns false without calling fn if none matches.
+template<class T, class Fn>
+[[gnu::always_inline]] constexpr bool dispatch_field_by_name(std::string_view key, Fn&& fn) {
+    using object_type = std::remove_cvref_t<T>;
+    return detail::dispatch_field_by_name_impl<object_type>(
+        key, fn, std::make_index_sequence<field_count<object_type>()>{});
+}
 
 } // namespace contract

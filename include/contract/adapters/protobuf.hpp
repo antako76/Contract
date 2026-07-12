@@ -364,9 +364,22 @@ public:
                     .wire(wire);
             }
 
-            const auto field_status = read_field_by_number<std::remove_reference_t<decltype(value)>, 0>(
-                *this, value, field_number, wire);
+            read_status field_status = read_status::error;
+            const bool found = contract::dispatch_field_by_id<T>(
+                field_number,
+                [this, &value, wire, &field_status](const auto& field) {
+                    field_status = this->read_field(field, value, wire);
+                });
+
+            if (!found) {
+                return error().code(read_error_code::unknown_field)
+                    .type_name(type_name)
+                    .field_number(field_number)
+                    .stage(detail::read_stage::field_key)
+                    .wire(wire);
+            }
             if (field_status == read_status::error) {
+                error().type_name(type_name);
                 return field_status;
             }
         }
@@ -474,30 +487,6 @@ private:
             }
         }
         return *error_;
-    }
-
-    template<class Object, std::size_t Index>
-    static read_status read_field_by_number(
-        reader& in,
-        Object& obj,
-        std::uint32_t field_number,
-        detail::wire_type wire)
-    {
-        if constexpr (Index >= contract::field_count<Object>()) {
-            const auto type_name = contract::type_name<Object>();
-            in.error().code(read_error_code::unknown_field)
-                .type_name(type_name)
-                .field_number(field_number)
-                .stage(detail::read_stage::field_key)
-                .wire(wire);
-            return read_status::error;
-        } else {
-            auto field = contract::field_at<Index, Object>();
-            if (static_cast<std::uint32_t>(field.id) == field_number) {
-                return in.read_field(field, obj, wire);
-            }
-            return read_field_by_number<Object, Index + 1>(in, obj, field_number, wire);
-        }
     }
 
     template<class Field, class Object>

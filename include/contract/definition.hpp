@@ -99,7 +99,7 @@ constexpr auto flatten_entry(base<Base, Offset>) {
 
     return std::apply(
         [](const auto&... fields) {
-            return std::make_tuple(offset_field<std::remove_cv_t<std::remove_reference_t<decltype(fields)>>, Offset>{fields}...);
+            return std::make_tuple(fields.template imported<Offset>()...);
         },
         base_fields);
 }

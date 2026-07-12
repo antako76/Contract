@@ -10,10 +10,11 @@
 #include <string>
 #include <string_view>
 #include <source_location>
+#include <type_traits>
 
 namespace contract::detail {
 
-enum class field_kind {
+enum class error_field_kind {
     unknown,
     member,
     reference,
@@ -22,7 +23,7 @@ enum class field_kind {
 };
 
 struct error_field {
-    field_kind kind = field_kind::unknown;
+    error_field_kind kind = error_field_kind::unknown;
     std::string_view name{};
     std::uint32_t number = 0;
     std::optional<int> base_offset{};
@@ -41,18 +42,19 @@ struct error_field {
             }
         }
 
-        if constexpr (requires { Field::is_base_import; Field::is_member_field; Field::is_reference_field; Field::is_property_field; }) {
-            if (kind == field_kind::unknown) {
+        if constexpr (requires { Field::kind; Field::is_base_import; }) {
+            // Take the enumerators from the descriptor's own kind type so this
+            // header does not need to include the core field header.
+            using descriptor_kind = std::remove_const_t<decltype(Field::kind)>;
+            if (kind == error_field_kind::unknown) {
                 if constexpr (Field::is_base_import) {
-                    kind = field_kind::offset;
-                } else if constexpr (Field::is_member_field) {
-                    kind = field_kind::member;
-                } else if constexpr (Field::is_reference_field) {
-                    kind = field_kind::reference;
-                } else if constexpr (Field::is_property_field) {
-                    kind = field_kind::property;
-                } else {
-                    kind = field_kind::unknown;
+                    kind = error_field_kind::offset;
+                } else if constexpr (Field::kind == descriptor_kind::member) {
+                    kind = error_field_kind::member;
+                } else if constexpr (Field::kind == descriptor_kind::reference) {
+                    kind = error_field_kind::reference;
+                } else if constexpr (Field::kind == descriptor_kind::property) {
+                    kind = error_field_kind::property;
                 }
             }
         }
@@ -68,17 +70,17 @@ struct error_field {
     }
 };
 
-static std::string_view field_kind_name(field_kind value) noexcept {
+static std::string_view field_kind_name(error_field_kind value) noexcept {
     switch (value) {
-    case field_kind::unknown:
+    case error_field_kind::unknown:
         return "field";
-    case field_kind::member:
+    case error_field_kind::member:
         return "member";
-    case field_kind::reference:
+    case error_field_kind::reference:
         return "reference";
-    case field_kind::property:
+    case error_field_kind::property:
         return "property";
-    case field_kind::offset:
+    case error_field_kind::offset:
         return "offset";
     }
     return "field";
@@ -217,7 +219,7 @@ private:
         }
 
         if (field_) {
-            if (field_->kind != field_kind::unknown) {
+            if (field_->kind != error_field_kind::unknown) {
                 message += " [";
                 message += field_kind_name(field_->kind);
                 message += "]";

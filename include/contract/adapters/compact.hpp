@@ -1192,7 +1192,7 @@ private:
     read_status read_from_header(unsigned char header) {
         // Dispatch on the high nibble so the compiler builds a jump table
         // instead of a linear chain of range checks. The byte layout groups
-        // each value_kind into one nibble (see docs/contract/adapters/compact.md):
+        // each value_kind into one nibble (see docs/adapters/compact.md):
         // 0x0..0x3 zero/small_uint, 0x4 small_neg, 0x5 int_payload, 0x6 bytes,
         // 0x7 string, 0x8 array, 0x9 map, 0xa object, 0xb bool/null, 0xc float.
         switch (header >> 4) {
@@ -1309,8 +1309,13 @@ struct codec<T, std::enable_if_t<contract::adapters::base::has_contract_definiti
                     .stage(read_stage::field_id);
             }
 
-            bool matched = false;
-            if (read_field_by_id<0>(in, obj, field_id, matched) == read_status::error) {
+            read_status field_status = read_status::ok;
+            const bool matched = contract::dispatch_field_by_id<object_type>(
+                field_id,
+                [&in, &obj, &field_status](const auto& field) {
+                    field_status = read_field(in, field, obj);
+                });
+            if (field_status == read_status::error) {
                 return in.error().type_name(type_name);
             }
             if (!matched && in.skip_value() == read_status::error) {
@@ -1366,23 +1371,6 @@ private:
         }
     }
 
-    template<std::size_t Index, class Reader>
-    static read_status read_field_by_id(
-        Reader& in,
-        object_type& obj,
-        std::uint64_t field_id,
-        bool& matched) {
-        if constexpr (Index >= contract::field_count<object_type>()) {
-            return read_status::ok;
-        } else {
-            auto field = contract::field_at<Index, object_type>();
-            if (static_cast<std::uint64_t>(field.id) == field_id) {
-                matched = true;
-                return read_field(in, field, obj);
-            }
-            return read_field_by_id<Index + 1>(in, obj, field_id, matched);
-        }
-    }
 };
 
 template<>

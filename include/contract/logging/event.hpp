@@ -70,7 +70,7 @@ struct payload_field {
 
     CONTRACT(log_payload_field, 
         (name, 1), 
-        (value, 2)
+        REFERENCE(value, 2)
     )
 };
 
@@ -112,7 +112,7 @@ struct event_view {
         (severity_number, 3), 
         (name, 4), 
         (body, 5), 
-        (context, 6), 
+        REFERENCE(context, 6),
         (attributes, 7)
     )
 };

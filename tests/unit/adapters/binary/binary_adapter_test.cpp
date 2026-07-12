@@ -52,7 +52,7 @@ struct HookedBinaryRecord {
     CONTRACT(HookedBinaryRecord, (count, 1))
 
     template<class Value>
-    void contract_set(contract::tag<field::count>, Value&& value) {
+    void contract_set(const contract_fields::count&, Value&& value) {
         count = static_cast<std::uint32_t>(std::forward<Value>(value)) + 1;
     }
 };
@@ -69,12 +69,12 @@ struct TextBinaryRecord {
     CONTRACT(TextBinaryRecord, (name, 1), (category, 2))
 
     template<class Value>
-    void contract_set(contract::tag<field::name>, Value&& value) {
+    void contract_set(const contract_fields::name&, Value&& value) {
         name = std::forward<Value>(value);
     }
 
     template<class Value>
-    void contract_set(contract::tag<field::category>, Value&& value) {
+    void contract_set(const contract_fields::category&, Value&& value) {
         category_storage = std::forward<Value>(value);
         category = category_storage.c_str();
     }
@@ -92,7 +92,7 @@ struct HookedStringViewRecord {
     CONTRACT(HookedStringViewRecord, (name, 1))
 
     template<class Value>
-    void contract_set(contract::tag<field::name>, Value&& value) {
+    void contract_set(const contract_fields::name&, Value&& value) {
         name = std::forward<Value>(value);
     }
 };

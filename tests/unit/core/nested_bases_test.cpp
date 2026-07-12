@@ -18,11 +18,11 @@ struct RootBase {
         (root, 1),
         PROPERTY(root_twice, 10, std::uint32_t))
 
-    std::uint32_t contract_get(contract::tag<field::root_twice>) const {
+    std::uint32_t contract_get(const contract_fields::root_twice&) const {
         return root * 2;
     }
 
-    void contract_set(contract::tag<field::root_twice>, std::uint32_t value) {
+    void contract_set(const contract_fields::root_twice&, std::uint32_t value) {
         root = value / 2;
     }
 };

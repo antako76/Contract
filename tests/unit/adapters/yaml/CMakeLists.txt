@@ -1,1 +1,2 @@
 add_contract_test(contract_yaml_adapter_test yaml_adapter_test.cpp)
+add_contract_test(contract_yaml_key_policy_test yaml_key_policy_test.cpp)

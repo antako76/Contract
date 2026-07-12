@@ -136,13 +136,24 @@ Why this example matters:
 - the whole shape is visible at a glance without hunting through adapter code;
 - the output reads like a structured document, not a formatter dump.
 
+## Performance
+
+The compile-time schema isn't just convenient - it's fast. Measured against
+real libprotobuf (3.21.12), with wire output verified byte-for-byte
+identical: CONTRACT's protobuf adapter is faster in nearly every scenario,
+typically taking 0.3x-0.8x of libprotobuf's time to pack and 0.4x-0.9x of its
+time to unpack. See
+[`docs/adapters/protobuf.md#performance`](docs/adapters/protobuf.md#performance)
+for the full breakdown, known exceptions, and how to run the benchmark
+yourself.
+
 ## Where To Go Next
 
-- [`docs/contract/README.md`](docs/contract/README.md) for the layer docs index
+- [`docs/README.md`](docs/README.md) for the layer docs index
 - [`include/contract/`](include/contract/) for the public headers
 - [`examples/`](examples/) for public usage examples
 - [`tests/`](tests/) for coverage and compatibility checks
-- [`docs/contract/reference/examples.md`](docs/contract/reference/examples.md) for additional usage examples
+- [`docs/reference/examples.md`](docs/reference/examples.md) for additional usage examples
 - [`RELEASE_POLICY.md`](RELEASE_POLICY.md) for branching, versioning, and release rules
 - [`RELEASE_NOTES.md`](RELEASE_NOTES.md) for user-visible release notes
 
@@ -155,7 +166,7 @@ Why this example matters:
 - [`include/contract/adapters/console.hpp`](include/contract/adapters/console.hpp) for the console adapter.
 - [`include/contract/adapters/binary.hpp`](include/contract/adapters/binary.hpp) for the lean binary adapter entry point.
 - [`include/contract/adapters/binary/all.hpp`](include/contract/adapters/binary/all.hpp) for the full binary adapter family set.
-- [`docs/contract/include_map.md`](docs/contract/include_map.md) for the current include tree.
+- [`docs/include_map.md`](docs/include_map.md) for the current include tree.
 
 ## Project Layout
 
@@ -163,7 +174,7 @@ Why this example matters:
 - [`include/contract/adapters/`](include/contract/adapters/) contains optional public adapters over the core
   traversal API.
 - [`include/contract/detail/`](include/contract/detail/) contains private implementation helpers.
-- [`docs/contract/README.md`](docs/contract/README.md) is the documentation entry point for the layer.
+- [`docs/README.md`](docs/README.md) is the documentation entry point for the layer.
 - [`examples/`](examples/) contains small public API examples.
 - [`src/`](src/) is reserved for future non-template implementation units.
 - [`tests/`](tests/) contains focused correctness and compatibility tests.

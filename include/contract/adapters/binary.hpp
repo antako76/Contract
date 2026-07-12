@@ -402,7 +402,7 @@ inline constexpr bool can_direct_field_read_v = [] {
     using value_type = typename field_type::value_type;
     using storage_type = typename field_type::storage_type;
     using normalized_storage_type = std::remove_cvref_t<storage_type>;
-    return (field_type::is_member_field || field_type::is_reference_field) &&
+    return field_type::kind != contract::field_kind::property &&
            field_type::template can_direct_ref<Object> &&
            !field_type::template has_custom_set<Object&, value_type&&> &&
            !std::is_const_v<object_type> &&

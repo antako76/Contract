@@ -148,7 +148,7 @@ WM-1 -> WM-2 (T-7) -> WM-3 / AR-* / API-* / ST-* as needed
 ## Project Sources Of Truth
 
 The stable adapter-facing public contracts live in
-[`docs/contract/adapters/README.md`](docs/contract/adapters/README.md).
+[`docs/adapters/README.md`](docs/adapters/README.md).
 
 Before changing adapter contracts, entry points, configuration views, session
 state, or facade boundaries, read that document and keep it synchronized with

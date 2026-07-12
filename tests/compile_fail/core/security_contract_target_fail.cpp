@@ -6,8 +6,11 @@
 #include <contract/security.hpp>
 
 struct InvalidSecurityContract {
+    int value = 0;
+
     CONTRACT(InvalidSecurityContract,
-        ATTRS(contract::security::secret()))
+        ATTRS(contract::security::secret()),
+        (value, 1))
 };
 
 int main() {
