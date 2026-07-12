@@ -80,10 +80,10 @@ int contract_get(const Field&, const FreeHookMetric& metric) {
 }
 ```
 
-For property-style fields, the same pattern applies but the tag is empty and
-the descriptor must be given an explicit logical value type in the contract
-declaration. In that case the core never falls back to raw storage access; it
-expects hooks.
+For property-style fields, the same pattern applies but the generated
+descriptor has no physical access of its own and must be given an explicit
+logical value type in the contract declaration. In that case the core never
+falls back to raw storage access; it expects hooks.
 
 ## Field Policies
 

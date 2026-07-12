@@ -1,11 +1,82 @@
-# CONTRACT Exception Policy
+# CONTRACT Errors And Exceptions
 
-This page defines the base exception policy for the CONTRACT layer.
+This page covers two related things: what an adapter's runtime diagnostic
+looks like and how it's built (below), and the policy for when CONTRACT
+throws versus returns a status/result (further down).
+
+## Diagnostic Anatomy
+
+Every adapter builds its runtime diagnostics on the same shared model
+(`contract::detail::adapter_error_base` in
+[`include/contract/detail/error.hpp`](../../include/contract/detail/error.hpp)).
+A diagnostic accumulates, append-only, as it's passed up through nested
+reads/writes, then renders to one human-readable message.
+
+This model exists under a hard constraint: **it must cost nothing on the
+success path**.
+
+- the diagnostic object is created lazily, only on the first failure - the
+  hot read/write loop never allocates or touches it while things are going
+  well;
+- it is never a separate bookkeeping structure kept "just in case" - it is
+  built only from state the adapter already has for normal operation (the
+  current field, the current offset, the current type), not from anything
+  maintained solely for future error reporting;
+- building and rendering the message itself is off the hot path entirely -
+  it only happens once, after failure is already known, never per field or
+  per byte.
+
+See [Exception Policy](#exception-policy) below for the fuller rule this
+follows from. Example (real, compiled output - truncating the last 2 bytes
+of an otherwise valid encoding):
+
+```text
+compact reader: truncated while reading raw bytes in Customer field name (#2)
+[member] at offset 5 (expected 5, got 3) [created at
+contract/adapters/compact.hpp:728 in read_status
+contract::adapters::compact::reader<>::read(void *, std::size_t)
+[Input = contract::io::window_input]]
+```
+
+Reading left to right:
+
+- `compact reader` - which adapter and side (reader/writer) produced the
+  diagnostic;
+- `truncated` - the error code (an adapter-specific enum);
+- `while reading raw bytes` - the action and the stage it failed at;
+- `in Customer field name (#2) [member]` - the CONTRACT type, then the field
+  name, declared id, and access kind, attached together when a field
+  descriptor is known at the point of failure;
+- `at offset 5` - the byte offset in the input/output where the failure was
+  detected, when the I/O backend tracks position;
+- `(expected 5, got 3)` - a size mismatch attached by the adapter, when
+  relevant;
+- `[created at ...]` - a developer trace: the exact source file, line, and
+  instantiated function signature that created the diagnostic object, so a
+  developer can jump straight to the failing code path.
+
+Not every piece appears in every message - each is attached only when it is
+actually known at the point of failure:
+
+- an *unknown* field has no CONTRACT descriptor, so its message has no field
+  name or kind, only the raw wire id;
+- the yaml adapter's `missing_required_key` check does not attach a field to
+  the diagnostic today, so that message does not name the missing key in its
+  human-readable part - only the developer trace (via the instantiated
+  `Field = ...` template argument) identifies it.
+
+Each adapter's own docs page has one more worked example in its own wire
+format:
+[`adapters/protobuf.md`](../adapters/protobuf.md#scope),
+[`adapters/compact.md`](../adapters/compact.md#diagnostics),
+[`adapters/yaml.md`](../adapters/yaml.md#error-model).
+
+## Exception Policy
 
 The goal is to keep the hot data path predictable while allowing convenience
 APIs and boundary checks to stay ergonomic.
 
-## Base Rules
+### Base Rules
 
 Exceptions are allowed when the failure is outside the normal data path.
 
@@ -29,7 +100,7 @@ The usual split is:
 3. public convenience APIs
    - may throw when they wrap the core with a simpler user-facing contract.
 
-## Core
+### Core
 
 The core layer should remain compile-time driven.
 
@@ -42,7 +113,7 @@ The core layer should remain compile-time driven.
 When the core needs to express a misuse of the static model, it should do so as
 compile-time failure or as a contract rule, not as a runtime exception path.
 
-## I/O
+### I/O
 
 The I/O layer may throw for boundary and setup failures.
 
@@ -73,7 +144,7 @@ consume(n)  -> confirm how many bytes were actually used
 
 `consume()` should not become a partial read API.
 
-## Adapters
+### Adapters
 
 Adapters own runtime parsing and encoding behavior.
 
@@ -125,7 +196,7 @@ insufficient buffer - it returns `write_status::error` and lets the caller
 decide. Only this outer, optional convenience boundary turns that into an
 exception.
 
-## Practical Guidance
+### Practical Guidance
 
 - `file_input` open failure may throw.
 - byte bounds wrappers may throw when they are explicit checked variants.
@@ -134,7 +205,7 @@ exception.
 - `consume()` should not be a checked read and should not return short counts.
 - `need_more` should be a normal parser status, not an exception.
 
-## Design Rule
+### Design Rule
 
 Do not let exceptions define the normal protocol for the core, I/O, or
 adapter hot path.

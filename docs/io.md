@@ -139,7 +139,7 @@ Inside this repository, prefer direct includes of the specific backend headers
 instead of using the umbrella header.
 
 Exception policy for the I/O layer is documented in
-[`rationale/exceptions.md`](rationale/exceptions.md).
+[`rationale/errors.md`](rationale/errors.md).
 
 Additional facades may exist when they are thin and ergonomic, but they should
 stay re-export-like and avoid becoming parallel public APIs.

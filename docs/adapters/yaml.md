@@ -106,6 +106,33 @@ the protobuf adapter.
   is already available from the reader state.
 - an internal developer trace is appended to the message at the end.
 
+See [`rationale/errors.md`](../rationale/errors.md) for what a diagnostic
+message is made of in general. In yaml's case specifically (using
+`PaymentConfig` as declared above, where `service` is required - not
+`std::optional<T>`):
+
+```cpp
+// "service" is required and missing here.
+contract::adapters::yaml::reader<> in(
+    contract::io::window_input{"port: 8080\nenabled: true\n"});
+PaymentConfig config{};
+in >> config; // throws
+```
+
+```text
+yaml reader: missing required key while reading field at line 2 near "true"
+[created at contract/adapters/yaml.hpp:1002 in static parse_status
+contract::adapters::yaml::codec<PaymentConfig>::check_missing_field(...)
+[..., Field = contract::field<PaymentConfig, 1, contract::field_kind::member,
+contract::attributes<>, void, &PaymentConfig::service>]]
+```
+
+Note the missing field's own name (`service`) only shows up here, buried in
+the instantiated template arguments (`Field = ...&PaymentConfig::service`) -
+unlike protobuf's and compact's examples, this check does not attach the
+field to the error object, so the human-readable part of the message does
+not say which key is missing.
+
 ## Public Surface
 
 - [`contract::adapters::yaml::reader`](../../include/contract/adapters/yaml.hpp)

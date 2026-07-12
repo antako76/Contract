@@ -136,6 +136,17 @@ Why this example matters:
 - the whole shape is visible at a glance without hunting through adapter code;
 - the output reads like a structured document, not a formatter dump.
 
+## Performance
+
+The compile-time schema isn't just convenient - it's fast. Measured against
+real libprotobuf (3.21.12), with wire output verified byte-for-byte
+identical: CONTRACT's protobuf adapter is faster in nearly every scenario,
+typically taking 0.3x-0.8x of libprotobuf's time to pack and 0.4x-0.9x of its
+time to unpack. See
+[`docs/adapters/protobuf.md#performance`](docs/adapters/protobuf.md#performance)
+for the full breakdown, known exceptions, and how to run the benchmark
+yourself.
+
 ## Where To Go Next
 
 - [`docs/README.md`](docs/README.md) for the layer docs index

@@ -127,6 +127,33 @@ models.
 - nested message encoding uses an internal sizing prepass and then writes the
   payload directly to the destination output, without an intermediate buffer.
 
+See [`rationale/errors.md`](../rationale/errors.md) for what a diagnostic
+message is made of in general. In protobuf's case specifically:
+
+```cpp
+// Hand-crafted wire bytes: field 1 (order_id, varint), then field 99, which
+// has no matching CONTRACT field on Order (types as declared above).
+std::vector<unsigned char> bytes{
+    0x08, 0x2a,       // tag 1 (varint), value 42
+    0x98, 0x06, 0x07, // tag 99 (varint), value 7
+};
+
+contract::adapters::protobuf::reader<> in(
+    contract::io::window_input{bytes.data(), bytes.size()});
+Order restored{};
+in >> restored; // throws
+```
+
+```text
+protobuf reader: unknown field while reading field key in Order at offset 4
+(wire field #99) [created at contract/adapters/protobuf.hpp:375 in
+read_status contract::adapters::protobuf::reader<>::read_message(T &)
+[Input = contract::io::window_input, T = Order]]
+```
+
+An unknown field has no CONTRACT descriptor, so the message names only the
+raw wire field number (`wire field #99`), not a field name or kind.
+
 ## Wire Rules
 
 - unknown fields are errors;
@@ -199,21 +226,23 @@ Measured against real libprotobuf (3.21.12) with an optional benchmark
 `CONTRACT_BENCH_WITH_PROTOBUF`, off by default so the core library and tests
 carry no protobuf dependency).
 
-- Wire sizes match byte-for-byte in every measured scenario, including
-  negative int32/int64 sign extension - this is a real interop check, not
-  just a size estimate.
-- Pack is faster than libprotobuf in nearly every scenario, typically by
-  1.2x-3x (e.g. a single string field: ~0.3x of libprotobuf's time).
-- Unpack is faster in most scenarios (~0.4x-0.9x), with one known exception:
-  messages with many individual scalar integer fields of the same type (e.g.
-  25 separate `uint32_t` fields) unpack ~1.1-1.3x slower. This traces to
-  `read_varint`'s per-field dispatch cost on that specific shape; two
-  alternative decode strategies (a branchless multi-byte SWAR decoder, and
-  mirroring libprotobuf's own single-byte fast path) were tried and both
-  measured worse on this codebase's actual value distributions - see the
-  benchmark's git history for the disassembly-backed reasoning.
-- Repeated scalar fields, nested messages, and string-heavy messages show no
-  such gap - the effect is narrow to that field shape, not general.
+See [`reference/benchmarks.md`](../reference/benchmarks.md#reference-result-snapshot)
+for the current numbers (that page is the canonical source of measured
+ratios - not restated here to avoid the two places drifting apart). In
+short: wire sizes match byte-for-byte in every measured scenario, including
+negative int32/int64 sign extension, and CONTRACT is faster in most pack and
+unpack scenarios.
+
+The two scenarios with a real, reproducible unpack slowdown are `int25`
+(25 separate scalar `uint32_t` fields) and `vector[100]` (a 100-element
+repeated scalar field) - both are shapes with many cheap elements and no
+strings to mask per-element dispatch/decode cost. This traces to
+`read_varint`'s per-element dispatch cost on that specific shape; two
+alternative decode strategies (a branchless multi-byte SWAR decoder, and
+mirroring libprotobuf's own single-byte fast path) were tried and both
+measured worse on this codebase's actual value distributions - see the
+benchmark's git history for the disassembly-backed reasoning. Nested
+messages and string-heavy messages show no such gap.
 
 Run it yourself:
 

@@ -574,6 +574,53 @@ cursor preview, contiguous payload access, and direct output writes.
   container index, or position correction;
 - diagnostics are append-only by convention.
 
+See [`rationale/errors.md`](../rationale/errors.md) for what a diagnostic
+message is made of in general. In compact's case specifically:
+
+```cpp
+#include <contract/adapters/compact/all.hpp>
+#include <contract/contract.hpp>
+#include <contract/io.hpp>
+
+#include <array>
+#include <cstdint>
+#include <string>
+
+struct Customer {
+    std::uint32_t id;
+    std::string name;
+    CONTRACT(Customer, (id, 1), (name, 2))
+};
+
+int main() {
+    Customer original{7, "alice"};
+
+    std::array<unsigned char, 64> buffer{};
+    contract::adapters::compact::writer<> out(
+        contract::io::window_output{buffer.data(), buffer.size()});
+    out << original;
+    const std::size_t written = out.position();
+
+    // Truncate the last 2 bytes to simulate a short read.
+    contract::adapters::compact::reader<> in(
+        contract::io::window_input{buffer.data(), written - 2});
+    Customer restored{};
+    in >> restored; // throws
+}
+```
+
+```text
+compact reader: truncated while reading raw bytes in Customer field name (#2)
+[member] at offset 5 (expected 5, got 3) [created at
+contract/adapters/compact.hpp:728 in read_status
+contract::adapters::compact::reader<>::read(void *, std::size_t)
+[Input = contract::io::window_input]]
+```
+
+Here the field name, id, and kind are all known (the reader had already
+matched the wire field id to a declared field before decoding its value
+failed), unlike protobuf's unknown-field case.
+
 Current read error codes:
 
 ```text

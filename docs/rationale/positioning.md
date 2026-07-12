@@ -62,7 +62,7 @@ serializer macro.
 - A small compile-time layer over native C++ structs.
 - Stable external field ids and names.
 - Typed field descriptors and traversal.
-- Generated field tags that carry access shape.
+- Generated field descriptors that carry access shape.
 - Base contract flattening through explicit offsets.
 - Physical fields, reference fields, and logical/computed properties.
 - Extension points for access customization, type codecs, and field policies.
@@ -77,6 +77,12 @@ serializer macro.
 
 The contract layer should compile away. The selected adapter owns the remaining
 runtime cost.
+
+That claim is checked, not just asserted: measured against real libprotobuf
+(3.21.12), CONTRACT's protobuf adapter packs faster in nearly every scenario
+(typically 1.2x-3x) and unpacks faster in most (0.4x-0.9x), with byte-for-byte
+identical wire output. See
+[`adapters/protobuf.md#performance`](../adapters/protobuf.md#performance).
 
 ## Positioning Rule
 

@@ -8,7 +8,7 @@ shared boundary model; the family-specific page should only describe what is
 different.
 
 Exception and status/result policy is documented in
-[`../rationale/exceptions.md`](../rationale/exceptions.md).
+[`../rationale/errors.md`](../rationale/errors.md).
 
 ## Why this layer exists
 

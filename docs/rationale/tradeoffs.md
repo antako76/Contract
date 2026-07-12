@@ -60,8 +60,9 @@ The adapter-facing public API should be object-based:
 - `writer` / `reader` are public adapter objects;
 - `with(options)` is the universal override hook;
 - `schema()`, `value()`, `debug()` are optional presets;
-- `session` is internal runtime state when the adapter needs a prepass or
-  layout;
+- internal runtime state for a prepass or layout step (e.g. console's
+  `needs_comment_layout()` / `prepare_comment_layout(value)`) stays private to
+  the adapter, not part of the public object-based API;
 - convenience facades must stay thin and must not become a second
   implementation path;
 - `dump(...)` should not become a parallel API if the object-based entry point

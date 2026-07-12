@@ -8,7 +8,7 @@ and the standard container families are split into opt-in headers under
 [`../../include/contract/adapters/binary/`](../../include/contract/adapters/binary/).
 Field/codec organization rules are described in [`README.md`](README.md).
 Exception and status/result policy is documented in
-[`../rationale/exceptions.md`](../rationale/exceptions.md).
+[`../rationale/errors.md`](../rationale/errors.md).
 
 ## Example - Native Layout, No Wire Overhead
 

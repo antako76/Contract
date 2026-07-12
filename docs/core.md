@@ -276,7 +276,7 @@ struct Metric {
 Core validation is compile-time only. Invalid contracts fail compilation; the
 core does not provide runtime validation, runtime registries, or dynamic
 checks. Exception policy for the runtime layers is documented in
-[`rationale/exceptions.md`](rationale/exceptions.md).
+[`rationale/errors.md`](rationale/errors.md).
 
 P0 core checks:
 

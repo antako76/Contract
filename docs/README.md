@@ -25,7 +25,7 @@ repository [`README.md`](../README.md).
   - [`interoperability.md`](rationale/interoperability.md) - bridge, compatibility, and generator integration paths.
   - [`related_work.md`](rationale/related_work.md) - lessons taken from adjacent libraries without copying their structure.
   - [`compatibility.md`](rationale/compatibility.md) - versioning policy, compatibility levels, and checks.
-  - [`exceptions.md`](rationale/exceptions.md) - exception policy versus status/result control flow.
+  - [`errors.md`](rationale/errors.md) - the diagnostic model and message anatomy, plus exception policy versus status/result control flow.
 
 ## Public Header Entry Points
 

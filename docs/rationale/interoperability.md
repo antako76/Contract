@@ -22,18 +22,9 @@ The main point is that the field graph is declared once and then reused.
 
 ## Compatibility Levels
 
-Not every integration promise has the same strength.
-
-Common levels:
-
-- source compatibility: the declared contract can be consumed by a tool or
-  adapter without changing the source model;
-- schema compatibility: the declared field ids and shapes can be compared
-  across versions;
-- wire compatibility: the produced payload stays readable by older or newer
-  consumers;
-- behavioral compatibility: a bridge preserves the semantic meaning of the
-  fields even if the wire shape changes.
+Not every integration promise has the same strength. See
+[`compatibility.md`](compatibility.md#what-compatibility-means) for the
+source/schema/wire/behavioral levels this project distinguishes.
 
 Different adapters may choose different levels. The important part is to make
 the level explicit instead of assuming that every format has the same rules.
