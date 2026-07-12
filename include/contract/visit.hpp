@@ -80,10 +80,10 @@ namespace detail {
 // into a caller's loop for wider messages.
 template<class T, class Fn, std::size_t... Is>
 [[gnu::always_inline]] constexpr bool dispatch_field_by_id_impl(
-    std::uint32_t id, Fn& fn, std::index_sequence<Is...>) {
+    std::uint64_t id, Fn& fn, std::index_sequence<Is...>) {
     bool found = false;
     auto try_field = [&]<std::size_t Index>() {
-        if (found || static_cast<std::uint32_t>(field_at<Index, T>().id) != id) {
+        if (found || static_cast<std::uint64_t>(field_at<Index, T>().id) != id) {
             return;
         }
         fn(field_at<Index, T>());
@@ -98,9 +98,11 @@ template<class T, class Fn, std::size_t... Is>
 // Calls fn(field) for the declared field whose effective id matches `id` and
 // returns true, or returns false without calling fn if none matches. Callers
 // own everything about the not-found case (e.g. constructing an
-// adapter-specific error) - this utility only finds and invokes.
+// adapter-specific error) - this utility only finds and invokes. `id` is
+// uint64_t so wire formats with a wider field id (e.g. compact) and ones with
+// a narrower one (e.g. protobuf's uint32_t field numbers) share one utility.
 template<class T, class Fn>
-[[gnu::always_inline]] constexpr bool dispatch_field_by_id(std::uint32_t id, Fn&& fn) {
+[[gnu::always_inline]] constexpr bool dispatch_field_by_id(std::uint64_t id, Fn&& fn) {
     using object_type = std::remove_cvref_t<T>;
     return detail::dispatch_field_by_id_impl<object_type>(
         id, fn, std::make_index_sequence<field_count<object_type>()>{});

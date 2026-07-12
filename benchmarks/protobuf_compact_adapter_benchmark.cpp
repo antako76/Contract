@@ -103,6 +103,56 @@ struct NestedMessage {
     CONTRACT(NestedMessage, (numeric, 1), (text, 2))
 };
 
+// A more realistic nesting shape than `nested` above: several levels deep,
+// 5-7 fields per level, rather than one level with a 2-4 field submessage -
+// closer to a typical multi-level DTO than a minimal toy struct.
+struct DeepLevel3 {
+    std::uint32_t a = 1;
+    std::uint32_t b = 2;
+    std::uint32_t c = 3;
+    std::uint32_t d = 4;
+    std::uint32_t e = 5;
+    std::uint32_t f = 6;
+    std::uint32_t g = 7;
+
+    CONTRACT(DeepLevel3, (a, 1), (b, 2), (c, 3), (d, 4), (e, 5), (f, 6), (g, 7))
+};
+
+struct DeepLevel2 {
+    std::uint32_t p1 = 11;
+    std::uint32_t p2 = 12;
+    std::uint32_t p3 = 13;
+    std::uint32_t p4 = 14;
+    std::uint32_t p5 = 15;
+    DeepLevel3 inner{};
+
+    CONTRACT(DeepLevel2, (p1, 1), (p2, 2), (p3, 3), (p4, 4), (p5, 5), (inner, 6))
+};
+
+struct DeepLevel1 {
+    std::uint32_t q1 = 21;
+    std::uint32_t q2 = 22;
+    std::uint32_t q3 = 23;
+    std::uint32_t q4 = 24;
+    std::uint32_t q5 = 25;
+    std::uint32_t q6 = 26;
+    DeepLevel2 inner{};
+
+    CONTRACT(DeepLevel1, (q1, 1), (q2, 2), (q3, 3), (q4, 4), (q5, 5), (q6, 6), (inner, 7))
+};
+
+struct DeepNestedMessage {
+    std::uint32_t r1 = 31;
+    std::uint32_t r2 = 32;
+    std::uint32_t r3 = 33;
+    std::uint32_t r4 = 34;
+    std::uint32_t r5 = 35;
+    DeepLevel1 inner{};
+    TextMessage text{};
+
+    CONTRACT(DeepNestedMessage, (r1, 1), (r2, 2), (r3, 3), (r4, 4), (r5, 5), (inner, 6), (text, 7))
+};
+
 struct OptionalMessage {
     std::optional<std::uint32_t> count{42};
 
@@ -451,6 +501,23 @@ std::uint64_t checksum(const NestedMessage& value) {
     return checksum(value.numeric) + checksum(value.text);
 }
 
+std::uint64_t checksum(const DeepLevel3& value) {
+    return value.a + value.b + value.c + value.d + value.e + value.f + value.g;
+}
+
+std::uint64_t checksum(const DeepLevel2& value) {
+    return value.p1 + value.p2 + value.p3 + value.p4 + value.p5 + checksum(value.inner);
+}
+
+std::uint64_t checksum(const DeepLevel1& value) {
+    return value.q1 + value.q2 + value.q3 + value.q4 + value.q5 + value.q6 + checksum(value.inner);
+}
+
+std::uint64_t checksum(const DeepNestedMessage& value) {
+    return value.r1 + value.r2 + value.r3 + value.r4 + value.r5 +
+        checksum(value.inner) + checksum(value.text);
+}
+
 std::uint64_t checksum(const WideMessage& value) {
     return value.f01 + value.f02 + value.f03 + value.f04 +
         value.f05 + value.f06 + value.f07 + value.f08 +
@@ -763,6 +830,15 @@ int main(int argc, char** argv) {
         NestedMessage{numeric[2], text[2]},
         NestedMessage{numeric[3], text[3]},
     };
+    const std::array<DeepNestedMessage, 4> deep_nested{
+        DeepNestedMessage{31, 32, 33, 34, 35, DeepLevel1{}, text[0]},
+        DeepNestedMessage{41, 42, 43, 44, 45, DeepLevel1{21, 22, 23, 24, 25, 26,
+            DeepLevel2{11, 12, 13, 14, 15, DeepLevel3{101, 102, 103, 104, 105, 106, 107}}}, text[1]},
+        DeepNestedMessage{51, 52, 53, 54, 55, DeepLevel1{31, 32, 33, 34, 35, 36,
+            DeepLevel2{21, 22, 23, 24, 25, DeepLevel3{201, 202, 203, 204, 205, 206, 207}}}, text[2]},
+        DeepNestedMessage{61, 62, 63, 64, 65, DeepLevel1{41, 42, 43, 44, 45, 46,
+            DeepLevel2{31, 32, 33, 34, 35, DeepLevel3{301, 302, 303, 304, 305, 306, 307}}}, text[3]},
+    };
     const std::array<OptionalMessage, 4> optional{
         OptionalMessage{std::optional<std::uint32_t>{42}},
         OptionalMessage{std::optional<std::uint32_t>{}},
@@ -872,11 +948,12 @@ int main(int argc, char** argv) {
     }
 
     std::vector<row_entry> entries;
-    entries.reserve(26);
+    entries.reserve(27);
     entries.push_back({row_name("bool", 1), [&] { return benchmark_row("bool", boolean); }});
     entries.push_back({row_name("double", 1), [&] { return benchmark_row("double", floating); }});
     entries.push_back({row_name("i64", 1), [&] { return benchmark_row("i64", signed_int); }});
     entries.push_back({row_name("nested", 1), [&] { return benchmark_row("nested", nested); }});
+    entries.push_back({row_name("deep_nested", 1), [&] { return benchmark_row("deep_nested", deep_nested); }});
     entries.push_back({row_name("numeric", 1), [&] { return benchmark_row("numeric", numeric); }});
     entries.push_back({row_name("one", 1), [&] { return benchmark_row("one", one_field); }});
     entries.push_back({row_name("small", 1), [&] { return benchmark_row("small", small); }});
