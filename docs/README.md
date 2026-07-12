@@ -19,7 +19,6 @@ repository [`README.md`](../README.md).
 - [`include_map.md`](include_map.md) - the current public include tree and suggested bundles.
 - [`reference/`](reference/) - canonical examples and benchmarks.
 - [`rationale/`](rationale/) - design intent and tradeoffs:
-  - [`field_identity_refactor.md`](rationale/field_identity_refactor.md) - proposed removal of per-field access tags.
   - [`positioning.md`](rationale/positioning.md) - why CONTRACT exists.
   - [`tradeoffs.md`](rationale/tradeoffs.md) - why the layer split and object-based API look the way they do.
   - [`extensions.md`](rationale/extensions.md) - public query surface and adapter extension points.

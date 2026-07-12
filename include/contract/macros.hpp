@@ -64,9 +64,6 @@
 #define CONTRACT_PP_BOOL_32 1
 #define CONTRACT_PP_BOOL(value) CONTRACT_PP_CAT(CONTRACT_PP_BOOL_, value)
 
-#define CONTRACT_PP_FOR_EACH(macro, ...) \
-    CONTRACT_PP_CAT(CONTRACT_PP_FOR_EACH_, CONTRACT_PP_NARG(__VA_ARGS__))(macro, __VA_ARGS__)
-
 #define CONTRACT_PP_FOR_EACH_COMMA(macro, ...) \
     CONTRACT_PP_CAT(CONTRACT_PP_FOR_EACH_COMMA_, CONTRACT_PP_NARG(__VA_ARGS__))(macro, __VA_ARGS__)
 
@@ -75,39 +72,6 @@
 
 #define CONTRACT_PP_FOR_EACH_ARG(macro, arg, ...) \
     CONTRACT_PP_CAT(CONTRACT_PP_FOR_EACH_ARG_, CONTRACT_PP_NARG(__VA_ARGS__))(macro, arg, __VA_ARGS__)
-
-#define CONTRACT_PP_FOR_EACH_1(m, x) m(x)
-#define CONTRACT_PP_FOR_EACH_2(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_1(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_3(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_2(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_4(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_3(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_5(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_4(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_6(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_5(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_7(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_6(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_8(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_7(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_9(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_8(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_10(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_9(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_11(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_10(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_12(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_11(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_13(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_12(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_14(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_13(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_15(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_14(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_16(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_15(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_17(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_16(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_18(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_17(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_19(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_18(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_20(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_19(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_21(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_20(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_22(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_21(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_23(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_22(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_24(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_23(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_25(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_24(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_26(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_25(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_27(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_26(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_28(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_27(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_29(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_28(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_30(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_29(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_31(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_30(m, __VA_ARGS__)
-#define CONTRACT_PP_FOR_EACH_32(m, x, ...) m(x) CONTRACT_PP_FOR_EACH_31(m, __VA_ARGS__)
 
 #define CONTRACT_PP_FOR_EACH_COMMA_1(m, x) m(x)
 #define CONTRACT_PP_FOR_EACH_COMMA_2(m, x, ...) m(x), CONTRACT_PP_FOR_EACH_COMMA_1(m, __VA_ARGS__)
@@ -207,10 +171,6 @@
 #define CONTRACT_PP_FOR_EACH_ARG_30(m, arg, x, ...) m(arg, x) CONTRACT_PP_FOR_EACH_ARG_29(m, arg, __VA_ARGS__)
 #define CONTRACT_PP_FOR_EACH_ARG_31(m, arg, x, ...) m(arg, x) CONTRACT_PP_FOR_EACH_ARG_30(m, arg, __VA_ARGS__)
 #define CONTRACT_PP_FOR_EACH_ARG_32(m, arg, x, ...) m(arg, x) CONTRACT_PP_FOR_EACH_ARG_31(m, arg, __VA_ARGS__)
-
-// Field tuples are still the public contract syntax; these extract the name.
-#define CONTRACT_PAIR_NAME(pair) CONTRACT_PAIR_NAME_IMPL pair
-#define CONTRACT_PAIR_NAME_IMPL(name, id, ...) name
 
 #define CONTRACT_STRINGIZE_IMPL(value) #value
 #define CONTRACT_STRINGIZE(value) CONTRACT_STRINGIZE_IMPL(value)

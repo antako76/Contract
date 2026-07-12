@@ -24,7 +24,6 @@ struct member_pointer_traits;
 
 template<class Owner, class Value>
 struct member_pointer_traits<Value Owner::*> {
-    using owner_type = Owner;
     using storage_type = Value;
     using value_type = std::remove_cvref_t<Value>;
 };
@@ -252,10 +251,9 @@ constexpr auto field<Owner, DeclaredId, Kind, Attributes, DeclaredValue, Member,
     return imported_field<field, DeclaredId + Offset>{*this};
 }
 
+// A pure compile-time marker: flatten_entry() matches Base/Offset by template
+// deduction, so no members are needed here.
 template<class Base, int Offset>
-struct base {
-    using base_type = Base;
-    static constexpr int offset = Offset;
-};
+struct base {};
 
 } // namespace contract
