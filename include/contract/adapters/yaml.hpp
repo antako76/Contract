@@ -897,8 +897,7 @@ private:
     template<class Reader>
     static parse_status read_body(Reader& in, T& value, std::size_t indent) {
         using object_type = contract::adapters::base::clean_t<T>;
-        auto fields = contract::flattened_fields_of<object_type>();
-        constexpr std::size_t field_count = std::tuple_size_v<decltype(fields)>;
+        constexpr std::size_t field_count = contract::field_count<object_type>();
         std::array<bool, field_count> seen{};
 
         while (true) {
@@ -911,10 +910,12 @@ private:
                 break;
             }
 
-            bool matched = false;
-            if (read_mapping_field<0>(in, value, fields, seen, entry, matched) == parse_status::error) {
-                return parse_status::error;
-            }
+            parse_status field_status = parse_status::ok;
+            const bool matched = contract::dispatch_field_by_name<object_type>(
+                entry,
+                [&in, &value, &seen, &field_status](const auto& field, std::size_t index) {
+                    field_status = read_matched_field(in, value, field, seen, index);
+                });
 
             if (!matched) {
                 if (in.opt_.fail_on_unknown_keys) {
@@ -922,9 +923,12 @@ private:
                         .code(parse_error_code::unknown_key)
                         .stage(parse_stage::field);
                 }
+            } else if (field_status == parse_status::error) {
+                return field_status;
             }
         }
 
+        auto fields = contract::flattened_fields_of<object_type>();
         return check_missing_fields(in, value, fields, seen, std::make_index_sequence<field_count>{});
     }
 
@@ -943,55 +947,41 @@ private:
         return status;
     }
 
-    template<std::size_t I = 0, class Reader, class Object, class Tuple>
-    static parse_status read_mapping_field(
+    template<class Reader, class Object, class Field, std::size_t N>
+    static parse_status read_matched_field(
         Reader& in,
         Object& obj,
-        Tuple& fields,
-        std::array<bool, std::tuple_size_v<std::remove_reference_t<Tuple>>>& seen,
-        std::string_view key,
-        bool& matched)
+        const Field& field,
+        std::array<bool, N>& seen,
+        std::size_t index)
     {
-        using tuple_type = std::remove_reference_t<Tuple>;
-        if constexpr (I >= std::tuple_size_v<tuple_type>) {
-            matched = false;
-            return parse_status::ok;
-        } else {
-            auto& field = std::get<I>(fields);
-            if (field.name != key) {
-                return read_mapping_field<I + 1>(in, obj, fields, seen, key, matched);
-            }
+        using field_type = contract::adapters::base::clean_t<Field>;
+        using value_type = typename field_type::value_type;
 
-            using field_type = contract::adapters::base::clean_t<decltype(field)>;
-            using value_type = typename field_type::value_type;
+        if (seen[index] && in.opt_.fail_on_duplicate_keys) {
+            return in.error()
+                .code(parse_error_code::duplicate_key)
+                .stage(parse_stage::field);
+        }
+        seen[index] = true;
 
-            matched = true;
-            if (seen[I] && in.opt_.fail_on_duplicate_keys) {
+        if constexpr (field_type::template can_direct_ref<Object>) {
+            auto& ref = field.ref(obj);
+            const auto status = in.read_current_value(ref);
+            if (status == parse_status::error) {
                 return in.error()
-                    .code(parse_error_code::duplicate_key)
-                    .stage(parse_stage::field);
+                    .type_name(contract::type_name<Object>())
+                    .field(field);
             }
-            seen[I] = true;
-
-            if constexpr (field_type::template can_direct_ref<Object>) {
-                auto& ref = field.ref(obj);
-                const auto status = in.read_current_value(ref);
-                if (status == parse_status::error) {
-                    return in.error()
-                        .type_name(contract::type_name<Object>())
-                        .field(field);
-                }
-                return status;
-            } else {
-                value_type tmp{};
-                if (in.read_current_value(tmp) == parse_status::error) {
-                    return in.error()
-                        .type_name(contract::type_name<Object>())
-                        .field(field);
-                }
-                field.set(obj, std::move(tmp));
+            return status;
+        } else {
+            value_type tmp{};
+            if (in.read_current_value(tmp) == parse_status::error) {
+                return in.error()
+                    .type_name(contract::type_name<Object>())
+                    .field(field);
             }
-
+            field.set(obj, std::move(tmp));
             return parse_status::ok;
         }
     }

@@ -7,6 +7,7 @@
 #include <contract/definition.hpp>
 
 #include <cstdint>
+#include <string_view>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -106,6 +107,39 @@ template<class T, class Fn>
     using object_type = std::remove_cvref_t<T>;
     return detail::dispatch_field_by_id_impl<object_type>(
         id, fn, std::make_index_sequence<field_count<object_type>()>{});
+}
+
+namespace detail {
+
+// Same fused-fold shape as dispatch_field_by_id_impl, keyed by name instead
+// of id. fn also receives the matched field's index (as a plain runtime
+// value, known at the call site at compile time) since callers keyed by
+// name commonly need it for per-field bookkeeping (e.g. duplicate/missing
+// key tracking) that id-keyed formats don't.
+template<class T, class Fn, std::size_t... Is>
+[[gnu::always_inline]] constexpr bool dispatch_field_by_name_impl(
+    std::string_view name, Fn& fn, std::index_sequence<Is...>) {
+    bool found = false;
+    auto try_field = [&]<std::size_t Index>() {
+        if (found || field_at<Index, T>().name != name) {
+            return;
+        }
+        fn(field_at<Index, T>(), Index);
+        found = true;
+    };
+    (try_field.template operator()<Is>(), ...);
+    return found;
+}
+
+} // namespace detail
+
+// Calls fn(field, index) for the declared field whose name matches `key` and
+// returns true, or returns false without calling fn if none matches.
+template<class T, class Fn>
+[[gnu::always_inline]] constexpr bool dispatch_field_by_name(std::string_view key, Fn&& fn) {
+    using object_type = std::remove_cvref_t<T>;
+    return detail::dispatch_field_by_name_impl<object_type>(
+        key, fn, std::make_index_sequence<field_count<object_type>()>{});
 }
 
 } // namespace contract
