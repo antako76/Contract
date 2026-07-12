@@ -269,15 +269,48 @@
 #define CONTRACT_ENTRY_KIND_PROPERTY_1(entry) 2
 #define CONTRACT_ENTRY_KIND_PROPERTY_0(entry) 0
 
-#define CONTRACT_DECLARE_FIELD_TAG(pair) \
-    CONTRACT_PP_CAT(CONTRACT_DECLARE_FIELD_TAG_, CONTRACT_ENTRY_KIND(pair))(pair)
+#define CONTRACT_DECLARE_FIELD_TAG(contract_self_type, pair) \
+    CONTRACT_PP_CAT(CONTRACT_DECLARE_FIELD_TAG_, CONTRACT_ENTRY_KIND(pair))(contract_self_type, pair)
 
-#define CONTRACT_DECLARE_FIELD_TAG_0(pair) \
-    struct CONTRACT_PAIR_NAME(pair) {};
+// Physical field tags carry the generated member access alongside the tag
+// identity, so no separate per-field access struct is injected into the
+// owner class. The generated members use the contract_ prefix: the library
+// already reserves it (contract_get/contract_set hooks, contract_definition,
+// contract_field), so plain field names like get/set stay usable.
+#define CONTRACT_DECLARE_FIELD_TAG_0(contract_self_type, pair) \
+    CONTRACT_DECLARE_FIELD_TAG_0_NAME(contract_self_type, CONTRACT_PAIR_NAME(pair))
 
-#define CONTRACT_DECLARE_FIELD_TAG_1(pair)
+#define CONTRACT_DECLARE_FIELD_TAG_0_NAME(contract_self_type, name) \
+    CONTRACT_DECLARE_FIELD_TAG_0_NAME_IMPL(contract_self_type, name)
 
-#define CONTRACT_DECLARE_FIELD_TAG_2(entry) \
+#define CONTRACT_DECLARE_FIELD_TAG_0_NAME_IMPL(contract_self_type, name) \
+    struct name { \
+        template<class Obj> \
+        static constexpr decltype(auto) contract_get(Obj& obj) { \
+            return (obj.name); \
+        } \
+        template<class Obj> \
+        static constexpr decltype(auto) contract_get(const Obj& obj) { \
+            return (obj.name); \
+        } \
+        template<class OwnerT = contract_self_type> \
+        static constexpr auto contract_member_pointer() -> decltype(&OwnerT::name) { \
+            return &OwnerT::name; \
+        } \
+        template<class Obj, class Value> \
+        static constexpr auto contract_set(Obj& obj, Value&& value) \
+            requires std::is_assignable_v< \
+                decltype((std::declval<Obj&>().name)), \
+                Value&&> { \
+            obj.name = std::forward<Value>(value); \
+        } \
+    };
+
+#define CONTRACT_DECLARE_FIELD_TAG_1(contract_self_type, pair)
+
+// Property tags stay empty: properties have no physical member to access,
+// their value access is hook-driven.
+#define CONTRACT_DECLARE_FIELD_TAG_2(contract_self_type, entry) \
     struct CONTRACT_PROPERTY_NAME(entry) {};
 
 #define CONTRACT_BASE_TYPE(entry) CONTRACT_BASE_TYPE_IMPL entry
@@ -313,12 +346,11 @@
     CONTRACT_MAKE_ENTRY_0_BUILD(contract_self_type, name, id, __VA_ARGS__)
 
 #define CONTRACT_MAKE_ENTRY_0_BUILD(contract_self_type, name, id, ...) \
-    ::contract::make_access_field_with_attributes< \
+    ::contract::make_field< \
         contract_self_type, \
         typename contract_field::name, \
         id>( \
             CONTRACT_STRINGIZE(name), \
-            contract_access_##name{}, \
             CONTRACT_MAKE_FIELD_ATTRIBUTES(__VA_ARGS__))
 
 #define CONTRACT_MAKE_ENTRY_0_3 CONTRACT_MAKE_ENTRY_0_WITH_ATTRS
@@ -349,7 +381,7 @@
         contract_self_type, __VA_ARGS__)
 
 #define CONTRACT_MAKE_ENTRY_2_4(contract_self_type, marker, name, id, type) \
-    ::contract::make_property_field_with_attributes< \
+    ::contract::make_field< \
         contract_self_type, \
         typename contract_field::name, \
         id, \
@@ -358,7 +390,7 @@
             CONTRACT_MAKE_FIELD_ATTRIBUTES())
 
 #define CONTRACT_MAKE_ENTRY_2_WITH_ATTRS(contract_self_type, marker, name, id, type, ...) \
-    ::contract::make_property_field_with_attributes< \
+    ::contract::make_field< \
         contract_self_type, \
         typename contract_field::name, \
         id, \
@@ -379,46 +411,9 @@
 #define CONTRACT_MAKE_ENTRY_2_15 CONTRACT_MAKE_ENTRY_2_WITH_ATTRS
 #define CONTRACT_MAKE_ENTRY_2_16 CONTRACT_MAKE_ENTRY_2_WITH_ATTRS
 
-#define CONTRACT_DECLARE_ACCESS(contract_self_type, entry) \
-    CONTRACT_PP_CAT(CONTRACT_DECLARE_ACCESS_, CONTRACT_ENTRY_KIND(entry))(contract_self_type, entry)
-
-#define CONTRACT_DECLARE_ACCESS_0(contract_self_type, entry) \
-    CONTRACT_DECLARE_ACCESS_0_NAME(contract_self_type, CONTRACT_PAIR_NAME(entry))
-
-#define CONTRACT_DECLARE_ACCESS_0_NAME(contract_self_type, name) \
-    CONTRACT_DECLARE_ACCESS_0_NAME_IMPL(contract_self_type, name)
-
-#define CONTRACT_DECLARE_ACCESS_0_NAME_IMPL(contract_self_type, name) \
-    struct contract_access_##name { \
-        using owner_type = contract_self_type; \
-        template<class Obj> \
-        static constexpr decltype(auto) get(Obj& obj) { \
-            return (obj.name); \
-        } \
-        template<class Obj> \
-        static constexpr decltype(auto) get(const Obj& obj) { \
-            return (obj.name); \
-        } \
-        template<class OwnerT = contract_self_type> \
-        static constexpr auto member_pointer() -> decltype(&OwnerT::name) { \
-            return &OwnerT::name; \
-        } \
-        template<class Obj, class Value> \
-        static constexpr auto set(Obj& obj, Value&& value) \
-            requires std::is_assignable_v< \
-                decltype((std::declval<Obj&>().name)), \
-                Value&&> { \
-            obj.name = std::forward<Value>(value); \
-        } \
-    };
-
-#define CONTRACT_DECLARE_ACCESS_1(contract_self_type, entry)
-#define CONTRACT_DECLARE_ACCESS_2(contract_self_type, entry) CONTRACT_DECLARE_ACCESS_1(contract_self_type, entry)
-
 #define CONTRACT_DEFINE(contract_self_type, make_contract_expression, ...) \
-    CONTRACT_PP_FOR_EACH_ARG(CONTRACT_DECLARE_ACCESS, contract_self_type, __VA_ARGS__) \
     struct contract_field { \
-        CONTRACT_PP_FOR_EACH(CONTRACT_DECLARE_FIELD_TAG, __VA_ARGS__) \
+        CONTRACT_PP_FOR_EACH_ARG(CONTRACT_DECLARE_FIELD_TAG, contract_self_type, __VA_ARGS__) \
     }; \
     friend constexpr auto contract_definition(::contract::tag<contract_self_type>) { \
         return make_contract_expression( \
@@ -447,9 +442,8 @@
         __VA_ARGS__)
 
 #define CONTRACT_DEFINE_WITH_ATTRIBUTES(contract_self_type, attrs_entry, ...) \
-    CONTRACT_PP_FOR_EACH_ARG(CONTRACT_DECLARE_ACCESS, contract_self_type, __VA_ARGS__) \
     struct contract_field { \
-        CONTRACT_PP_FOR_EACH(CONTRACT_DECLARE_FIELD_TAG, __VA_ARGS__) \
+        CONTRACT_PP_FOR_EACH_ARG(CONTRACT_DECLARE_FIELD_TAG, contract_self_type, __VA_ARGS__) \
     }; \
     friend constexpr auto contract_definition(::contract::tag<contract_self_type>) { \
         return ::contract::make_contract_with_attributes<contract_self_type>( \

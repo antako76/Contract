@@ -525,7 +525,7 @@ private:
         }
 
         if (opt_.field_comment.show_accessor_kind) {
-            if constexpr (field_type::is_property_field) {
+            if constexpr (field_type::kind == contract::field_kind::property) {
                 begin_or_separate_comment(started);
                 write<text_color::comment_provenance>("property");
             }

@@ -81,7 +81,7 @@ int main() {
 
     assert(reference_fallback.storage == 900);
     assert(reference_fallback_raw_count.get(reference_fallback) == 900);
-    assert(reference_fallback_raw_count.is_reference_field);
+    assert(reference_fallback_raw_count.kind == contract::field_kind::reference);
 
     ReferenceHookMetric reference_hooked;
     const auto reference_hook_raw_count = contract::field_at<0, ReferenceHookMetric>();
@@ -90,7 +90,7 @@ int main() {
 
     assert(reference_hooked.storage == 90);
     assert(reference_hook_raw_count.get(reference_hooked) == 900);
-    assert(reference_hook_raw_count.is_reference_field);
+    assert(reference_hook_raw_count.kind == contract::field_kind::reference);
 
     ReferenceMetric reference_metric;
     const auto reference_raw_count = contract::field_at<0, ReferenceMetric>();
@@ -99,7 +99,7 @@ int main() {
 
     assert(reference_metric.storage == 12);
     assert(reference_raw_count.get(reference_metric) == 120);
-    assert(reference_raw_count.is_reference_field);
+    assert(reference_raw_count.kind == contract::field_kind::reference);
 
     return 0;
 }

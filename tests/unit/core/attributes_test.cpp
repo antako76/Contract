@@ -127,7 +127,7 @@ int main() {
     constexpr auto property = contract::field_at<1, Event>();
     using property_type = decltype(property);
     static_assert(property.id == 2);
-    static_assert(property.is_property_field);
+    static_assert(property.kind == contract::field_kind::property);
     static_assert(std::is_same_v<
         contract::attributes_of_t<property_type>,
         contract::attributes<field_code, other, label, label>>);
