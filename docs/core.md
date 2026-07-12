@@ -100,7 +100,16 @@ The core layer exposes a small query surface that adapters build on:
 - [`for_each_field<T>(fn)`](../include/contract/visit.hpp) iterates the flattened field descriptors in declaration order;
 - [`field_count<T>()`](../include/contract/visit.hpp) returns the number of flattened fields;
 - [`field_at<Index, T>()`](../include/contract/visit.hpp) returns one flattened field descriptor by index;
-- [`visit(object, adapter)`](../include/contract/visit.hpp) dispatches each flattened field into an adapter.
+- [`visit(object, adapter)`](../include/contract/visit.hpp) dispatches each flattened field into an adapter;
+- [`dispatch_field_by_id<T>(id, fn)`](../include/contract/visit.hpp) finds the declared field whose effective id matches a runtime value and calls `fn(field)`, or returns `false` without calling `fn`;
+- [`dispatch_field_by_name<T>(key, fn)`](../include/contract/visit.hpp) does the same keyed by field name, calling `fn(field, index)`.
+
+The last two exist because self-describing wire formats (protobuf, compact,
+yaml) all need to map a runtime id/key from the wire to the matching
+compile-time field before they can decode it. Each adapter used to implement
+this scan itself; all three shared the same bug (restarting the scan from
+field 0 on every incoming field, quadratic in field count). They now share
+one fused-fold implementation instead.
 
 These helpers are type-first. They make the declared contract discoverable
 without requiring adapters to depend on internal tuple storage or legacy

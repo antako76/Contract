@@ -317,16 +317,18 @@ Rules:
 - field completeness is not checked: a reader never verifies that every known
   field id was present on the wire.
 
-For each wire field id, the reader looks up the matching descriptor with a
-flat, compile-time recursive scan starting from descriptor index 0 (no hint,
-no per-object bookkeeping carried between fields):
+For each wire field id, the reader looks up the matching descriptor with
+[`contract::dispatch_field_by_id<T>(id, fn)`](../../include/contract/visit.hpp)
+- the same core primitive protobuf and yaml use for this, not a bespoke
+per-adapter scan. It compares every descriptor's id against the wire id in
+one fused pass (no hint, no per-object bookkeeping carried between fields):
 
 ```text
 for each wire field:
     field_id, matched = false
-    scan descriptors from index 0
-        if descriptor.id == field_id:
-            decode descriptor value, matched = true, stop scanning
+    for each descriptor:
+        if not matched and descriptor.id == field_id:
+            decode descriptor value, matched = true
     if not matched:
         skip unknown field value
 ```

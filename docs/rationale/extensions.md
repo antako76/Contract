@@ -15,6 +15,8 @@ contract::for_each_field<T>(fn);
 contract::field_count<T>();
 contract::field_at<Index, T>();
 contract::visit(object, adapter);
+contract::dispatch_field_by_id<T>(id, fn);
+contract::dispatch_field_by_name<T>(key, fn);
 ```
 
 These helpers make the declared contract discoverable without requiring
