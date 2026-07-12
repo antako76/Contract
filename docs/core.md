@@ -21,6 +21,31 @@ The core layer models one `CONTRACT` definition per type.
 This is the class-level contract model: the structural description of how a type
 maps to named, typed fields. Adapters consume this model; they do not define it.
 
+## What `CONTRACT(...)` Adds
+
+The macro creates declared field descriptors and returns a
+`contract::definition<Owner, ...>` that contains them. It also exposes their
+types through the nested `contract_fields` scope.
+
+For a member field like `(service, 1)`, the descriptor receives the physical
+member pointer directly:
+
+```cpp
+using service = decltype(contract::make_member_field<
+    PaymentConfig, 1, &PaymentConfig::service>("service", {}));
+```
+
+Properties have no physical member and use their declared logical type:
+
+```cpp
+using duration_ns = decltype(contract::make_property_field<
+    PaymentConfig, 10, std::uint64_t>("duration_ns", {}));
+```
+
+Reference members are explicit: `REFERENCE(value, id)` generates the reference
+descriptor itself. It derives its type from `decltype(Owner::value)` and keeps
+the direct `object.value` fallback internally.
+
 ## Core Concepts
 
 The core layer revolves around a small set of types:
@@ -39,7 +64,7 @@ Field entries can describe different access shapes:
 - physical member fields;
 - property fields backed by `contract_get` / `contract_set`;
 - base imports through `BASE(Type, offset)`;
-- offset-adjusted fields produced by base flattening.
+- imported fields produced by base flattening.
 
 The core layer also provides flattening helpers so adapters can consume one
 uniform traversal view instead of special-casing base imports in every adapter:
@@ -49,8 +74,10 @@ uniform traversal view instead of special-casing base imports in every adapter:
 - `type_name<T>()` returns the public contract name for `T`.
 
 Base imports are represented with `base<Type, offset>` entries and flattened
-into `offset_field<...>` descriptors before adapters see them. That keeps offset
-handling in the core layer rather than duplicating it in every adapter.
+into imported field descriptors before adapters see them. The imported field
+keeps the original tag, name, attributes, and access kind, but its effective id
+is shifted by the accumulated base offset. That keeps offset handling in the
+core layer rather than duplicating it in every adapter.
 
 The important rule is that core describes the graph, not the runtime policy.
 Traversal order, formatting, encoding, and stateful render behavior belong to
@@ -131,11 +158,14 @@ Field descriptors expose both the exact storage type and the adapter-facing
 value type:
 
 ```text
-Field::owner_type    class that owns the member pointer
+Field::owner_type    class that owns the field
+Field::kind          member / reference / property
+Field::declared_id   id written in the contract declaration
+Field::id            effective id after BASE flattening
+Field::base_offset   imported id shift accumulated across BASE layers
 Field::storage_type  exact declared member type, preserving const/volatile
 Field::value_type    normalized logical type for adapters
-Field::is_member_field
-Field::is_property_field
+Field::is_base_import
 Field::has_custom_get<Object>
 Field::has_custom_set<Object, Value>
 Field::can_direct_ref<Object>   detection-based direct-ref capability
@@ -149,11 +179,12 @@ For example, a `volatile unsigned long long` counter has
 raw storage access and preserves qualifiers such as `volatile`.
 `Field::set(obj, value)` writes physical member fields directly.
 
-Physical fields can override adapter-facing access with member tag hooks:
+Physical fields can override adapter-facing access with member hooks that take
+their concrete descriptor type:
 
 ```cpp
-contract_get(contract::tag<contract_field::name>{})
-contract_set(contract::tag<contract_field::name>{}, value)
+contract_get(const contract_fields::name&)
+contract_set(const contract_fields::name&, value)
 ```
 
 If the class cannot be changed, define ADL-discovered free hooks in the same
@@ -162,9 +193,6 @@ namespace as the type:
 ```cpp
 contract_get(field, object)
 contract_set(field, object, value)
-
-contract_get(contract::tag<contract_field::name>{}, object)
-contract_set(contract::tag<contract_field::name>{}, object, value)
 ```
 
 Resolution order:
@@ -172,36 +200,30 @@ Resolution order:
 ```text
 member field
 1. free descriptor hook
-2. free tag hook
-3. member tag hook
-4. direct fallback on the physical member
+2. member descriptor hook
+3. direct fallback on the physical member
 ```
 
 ```text
 reference field
 1. free descriptor hook
-2. free tag hook
-3. member tag hook
-4. fallback to access.get / access.set
+2. member descriptor hook
+3. fallback to generated direct reference access
 ```
 
 ```text
 property field
 1. free descriptor hook
-2. free tag hook
-3. member tag hook
-4. no direct fallback
+2. member descriptor hook
+3. no direct fallback
 ```
 
-Property fields use `PROPERTY(name, id, type)` and must provide either free
-descriptor hooks, free tag hooks, or member tag hooks:
+Property fields use `PROPERTY(name, id, type)` and must provide either free or
+member descriptor hooks:
 
 ```cpp
 contract_get(field, object)
 contract_set(field, object, value)
-
-contract_get(contract::tag<contract_field::name>{})
-contract_set(contract::tag<contract_field::name>{}, value)
 ```
 
 Property fields have `storage_type = void` and `value_type = type`.
@@ -213,9 +235,9 @@ Examples:
 struct User {
     std::uint64_t id;
 
-    std::uint64_t contract_get(contract::tag<contract_field::id>) const;
+    std::uint64_t contract_get(const contract_fields::id&) const;
     template<class Value>
-    void contract_set(contract::tag<contract_field::id>, Value&&);
+    void contract_set(const contract_fields::id&, Value&&);
 };
 ```
 
@@ -225,8 +247,10 @@ struct Wrapper {
     Target& value;
 };
 
-Target& contract_get(contract_field::value, Wrapper& object);
-void contract_set(contract_field::value, Wrapper& object, Target& value);
+CONTRACT(Wrapper, REFERENCE(value, 1))
+
+Target& contract_get(const Wrapper::contract_fields::value&, Wrapper& object);
+void contract_set(const Wrapper::contract_fields::value&, Wrapper& object, Target& value);
 ```
 
 ```cpp
@@ -234,9 +258,9 @@ void contract_set(contract_field::value, Wrapper& object, Target& value);
 struct Metric {
     PROPERTY(raw_count, 1, int)
 
-    int contract_get(contract::tag<contract_field::raw_count>) const;
+    int contract_get(const contract_fields::raw_count&) const;
     template<class Value>
-    void contract_set(contract::tag<contract_field::raw_count>, Value&&);
+    void contract_set(const contract_fields::raw_count&, Value&&);
 };
 ```
 

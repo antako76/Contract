@@ -9,8 +9,9 @@ The core layer should stay small:
 ```text
 field id;
 field name;
-field type;
-typed field reference;
+generated field descriptors;
+field kind;
+typed field access;
 base flattening;
 property fields;
 traits / customization points;

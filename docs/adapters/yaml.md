@@ -60,6 +60,10 @@ The file-backed example used by the repository is:
 For mappings, key order in the file does not matter. The adapter matches by
 field name and checks duplicates by field name.
 
+That mapping step still goes through the real CONTRACT descriptor, so
+member/reference/property access is resolved through the same descriptor
+surface as the other adapters.
+
 ## Guarantees
 
 - consumes a windowed byte-oriented IO backend with `peek()` / `consume()`;
@@ -76,6 +80,8 @@ field name and checks duplicates by field name.
 - `io` provides the windowed byte cursor.
 - `reader` owns tokenization, traversal, and final diagnostic formatting.
 - `codec<T>` owns type-specific parsing and block handling.
+- field-aware dispatch reads the descriptor metadata and access kind before it
+  decides whether to use a direct field path or a hook-driven property path.
 - reader and codec operations use status/result flow internally.
 - `operator>>` is a convenience boundary that converts a failed status into a
   thrown `parse_error`.

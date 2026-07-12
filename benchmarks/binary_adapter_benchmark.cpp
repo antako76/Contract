@@ -157,39 +157,39 @@ struct BenchNumericHooked {
     std::uint64_t total = 9000;
 
     CONTRACT(BenchNumericHooked, (id, 1), (count, 2), (ratio, 3), (total, 4))
-    int contract_get(contract::tag<contract_field::id>) const {
+    int contract_get(const contract_fields::id&) const {
         return id;
     }
 
     template<class Value>
-    void contract_set(contract::tag<contract_field::id>, Value&& value) {
+    void contract_set(const contract_fields::id&, Value&& value) {
         id = static_cast<std::uint64_t>(std::forward<Value>(value));
     }
 
-    std::uint32_t contract_get(contract::tag<contract_field::count>) const {
+    std::uint32_t contract_get(const contract_fields::count&) const {
         return count;
     }
 
     template<class Value>
-    void contract_set(contract::tag<contract_field::count>, Value&& value) {
+    void contract_set(const contract_fields::count&, Value&& value) {
         count = static_cast<std::uint32_t>(std::forward<Value>(value));
     }
 
-    double contract_get(contract::tag<contract_field::ratio>) const {
+    double contract_get(const contract_fields::ratio&) const {
         return ratio;
     }
 
     template<class Value>
-    void contract_set(contract::tag<contract_field::ratio>, Value&& value) {
+    void contract_set(const contract_fields::ratio&, Value&& value) {
         ratio = static_cast<double>(std::forward<Value>(value));
     }
 
-    std::uint64_t contract_get(contract::tag<contract_field::total>) const {
+    std::uint64_t contract_get(const contract_fields::total&) const {
         return total;
     }
 
     template<class Value>
-    void contract_set(contract::tag<contract_field::total>, Value&& value) {
+    void contract_set(const contract_fields::total&, Value&& value) {
         total = static_cast<std::uint64_t>(std::forward<Value>(value));
     }
 };
@@ -206,11 +206,11 @@ struct BenchStringHooked {
     CONTRACT(BenchStringHooked, (name, 1))
 
     template<class Value>
-    void contract_set(contract::tag<contract_field::name>, Value&& value) {
+    void contract_set(const contract_fields::name&, Value&& value) {
         name = std::forward<Value>(value);
     }
 
-    decltype(auto) contract_get(contract::tag<contract_field::name>) const {
+    decltype(auto) contract_get(const contract_fields::name&) const {
         return (name);
     }
 };
@@ -227,11 +227,11 @@ struct BenchStringViewHooked {
     CONTRACT(BenchStringViewHooked, (name, 1))
 
     template<class Value>
-    void contract_set(contract::tag<contract_field::name>, Value&& value) {
+    void contract_set(const contract_fields::name&, Value&& value) {
         name = std::forward<Value>(value);
     }
 
-    decltype(auto) contract_get(contract::tag<contract_field::name>) const {
+    decltype(auto) contract_get(const contract_fields::name&) const {
         return name;
     }
 };
@@ -248,11 +248,11 @@ struct BenchCStringHooked {
     CONTRACT(BenchCStringHooked, (category, 1))
 
     template<class Value>
-    void contract_set(contract::tag<contract_field::category>, Value&& value) {
+    void contract_set(const contract_fields::category&, Value&& value) {
         category = std::forward<Value>(value);
     }
 
-    decltype(auto) contract_get(contract::tag<contract_field::category>) const {
+    decltype(auto) contract_get(const contract_fields::category&) const {
         return category;
     }
 };
@@ -271,11 +271,11 @@ struct BenchCharArrayHooked##SUFFIX { \
     CONTRACT(BenchCharArrayHooked##SUFFIX, (tag, 1)) \
  \
     template<class Value> \
-    void contract_set(contract::tag<contract_field::tag>, Value&& value) { \
+    void contract_set(const contract_fields::tag&, Value&& value) { \
         std::memcpy(tag, std::forward<Value>(value), sizeof(tag)); \
     } \
  \
-    decltype(auto) contract_get(contract::tag<contract_field::tag>) const { \
+    decltype(auto) contract_get(const contract_fields::tag&) const { \
         return (tag); \
     } \
 };
@@ -307,29 +307,29 @@ struct BenchRequestEventHooked : BenchRequestBase {
     CONTRACT(BenchRequestEventHooked, BASE(BenchRequestBase, 1000), (user_id, 1101))
 
     template<class Value>
-    void contract_set(contract::tag<BenchRequestBase::contract_field::timestamp>, Value&& value) {
+    void contract_set(const BenchRequestBase::contract_fields::timestamp&, Value&& value) {
         timestamp = static_cast<std::uint64_t>(std::forward<Value>(value));
     }
 
     template<class Value>
-    void contract_set(contract::tag<BenchRequestBase::contract_field::service>, Value&& value) {
+    void contract_set(const BenchRequestBase::contract_fields::service&, Value&& value) {
         service = static_cast<std::uint64_t>(std::forward<Value>(value));
     }
 
     template<class Value>
-    void contract_set(contract::tag<contract_field::user_id>, Value&& value) {
+    void contract_set(const contract_fields::user_id&, Value&& value) {
         user_id = static_cast<std::uint64_t>(std::forward<Value>(value));
     }
 
-    decltype(auto) contract_get(contract::tag<BenchRequestBase::contract_field::timestamp>) const {
+    decltype(auto) contract_get(const BenchRequestBase::contract_fields::timestamp&) const {
         return timestamp;
     }
 
-    decltype(auto) contract_get(contract::tag<BenchRequestBase::contract_field::service>) const {
+    decltype(auto) contract_get(const BenchRequestBase::contract_fields::service&) const {
         return service;
     }
 
-    decltype(auto) contract_get(contract::tag<contract_field::user_id>) const {
+    decltype(auto) contract_get(const contract_fields::user_id&) const {
         return user_id;
     }
 };
@@ -358,38 +358,38 @@ struct BenchRoutedEventHooked : BenchRequestBase, BenchTraceContext {
         (route_id, 3001))
 
     template<class Value>
-    void contract_set(contract::tag<BenchRequestBase::contract_field::timestamp>, Value&& value) {
+    void contract_set(const BenchRequestBase::contract_fields::timestamp&, Value&& value) {
         timestamp = static_cast<std::uint64_t>(std::forward<Value>(value));
     }
 
     template<class Value>
-    void contract_set(contract::tag<BenchRequestBase::contract_field::service>, Value&& value) {
+    void contract_set(const BenchRequestBase::contract_fields::service&, Value&& value) {
         service = static_cast<std::uint64_t>(std::forward<Value>(value));
     }
 
     template<class Value>
-    void contract_set(contract::tag<BenchTraceContext::contract_field::trace_id>, Value&& value) {
+    void contract_set(const BenchTraceContext::contract_fields::trace_id&, Value&& value) {
         trace_id = static_cast<std::uint64_t>(std::forward<Value>(value));
     }
 
     template<class Value>
-    void contract_set(contract::tag<contract_field::route_id>, Value&& value) {
+    void contract_set(const contract_fields::route_id&, Value&& value) {
         route_id = static_cast<std::uint64_t>(std::forward<Value>(value));
     }
 
-    decltype(auto) contract_get(contract::tag<BenchRequestBase::contract_field::timestamp>) const {
+    decltype(auto) contract_get(const BenchRequestBase::contract_fields::timestamp&) const {
         return timestamp;
     }
 
-    decltype(auto) contract_get(contract::tag<BenchRequestBase::contract_field::service>) const {
+    decltype(auto) contract_get(const BenchRequestBase::contract_fields::service&) const {
         return service;
     }
 
-    decltype(auto) contract_get(contract::tag<BenchTraceContext::contract_field::trace_id>) const {
+    decltype(auto) contract_get(const BenchTraceContext::contract_fields::trace_id&) const {
         return trace_id;
     }
 
-    decltype(auto) contract_get(contract::tag<contract_field::route_id>) const {
+    decltype(auto) contract_get(const contract_fields::route_id&) const {
         return route_id;
     }
 };
@@ -406,11 +406,11 @@ struct BenchVectorHooked {
     CONTRACT(BenchVectorHooked, (values, 1))
 
     template<class Value>
-    void contract_set(contract::tag<contract_field::values>, Value&& value) {
+    void contract_set(const contract_fields::values&, Value&& value) {
         values = std::forward<Value>(value);
     }
 
-    decltype(auto) contract_get(contract::tag<contract_field::values>) const {
+    decltype(auto) contract_get(const contract_fields::values&) const {
         return (values);
     }
 };
@@ -437,11 +437,11 @@ struct BenchArrayHooked##SUFFIX { \
     CONTRACT(BenchArrayHooked##SUFFIX, (values, 1)) \
  \
     template<class Value> \
-    void contract_set(contract::tag<contract_field::values>, Value&& value) { \
+    void contract_set(const contract_fields::values&, Value&& value) { \
         values = std::forward<Value>(value); \
     } \
  \
-    decltype(auto) contract_get(contract::tag<contract_field::values>) const { \
+    decltype(auto) contract_get(const contract_fields::values&) const { \
         return (values); \
     } \
 }; \
@@ -504,11 +504,11 @@ struct BenchTupleHooked {
     CONTRACT(BenchTupleHooked, (payload, 1))
 
     template<class Value>
-    void contract_set(contract::tag<contract_field::payload>, Value&& value) {
+    void contract_set(const contract_fields::payload&, Value&& value) {
         payload = std::forward<Value>(value);
     }
 
-    decltype(auto) contract_get(contract::tag<contract_field::payload>) const {
+    decltype(auto) contract_get(const contract_fields::payload&) const {
         return (payload);
     }
 };
@@ -529,11 +529,11 @@ struct BenchVariantHooked {
     CONTRACT(BenchVariantHooked, (payload, 1))
 
     template<class Value>
-    void contract_set(contract::tag<contract_field::payload>, Value&& value) {
+    void contract_set(const contract_fields::payload&, Value&& value) {
         payload = std::forward<Value>(value);
     }
 
-    decltype(auto) contract_get(contract::tag<contract_field::payload>) const {
+    decltype(auto) contract_get(const contract_fields::payload&) const {
         return (payload);
     }
 };
@@ -550,11 +550,11 @@ struct BenchMapHooked {
     CONTRACT(BenchMapHooked, (labels, 1))
 
     template<class Value>
-    void contract_set(contract::tag<contract_field::labels>, Value&& value) {
+    void contract_set(const contract_fields::labels&, Value&& value) {
         labels = std::forward<Value>(value);
     }
 
-    decltype(auto) contract_get(contract::tag<contract_field::labels>) const {
+    decltype(auto) contract_get(const contract_fields::labels&) const {
         return (labels);
     }
 };
@@ -571,11 +571,11 @@ struct BenchOptionalHooked {
     CONTRACT(BenchOptionalHooked, (count, 1))
 
     template<class Value>
-    void contract_set(contract::tag<contract_field::count>, Value&& value) {
+    void contract_set(const contract_fields::count&, Value&& value) {
         count = std::forward<Value>(value);
     }
 
-    decltype(auto) contract_get(contract::tag<contract_field::count>) const {
+    decltype(auto) contract_get(const contract_fields::count&) const {
         return (count);
     }
 };
@@ -604,11 +604,11 @@ struct BenchBitsetHooked##SUFFIX { \
     CONTRACT(BenchBitsetHooked##SUFFIX, (flags, 1)) \
  \
     template<class Value> \
-    void contract_set(contract::tag<contract_field::flags>, Value&& value) { \
+    void contract_set(const contract_fields::flags&, Value&& value) { \
         flags = std::forward<Value>(value); \
     } \
  \
-    decltype(auto) contract_get(contract::tag<contract_field::flags>) const { \
+    decltype(auto) contract_get(const contract_fields::flags&) const { \
         return (flags); \
     } \
 }; \
@@ -946,11 +946,11 @@ struct BenchUnorderedMapHooked {
     CONTRACT(BenchUnorderedMapHooked, (labels, 1))
 
     template<class Value>
-    void contract_set(contract::tag<contract_field::labels>, Value&& value) {
+    void contract_set(const contract_fields::labels&, Value&& value) {
         labels = std::forward<Value>(value);
     }
 
-    decltype(auto) contract_get(contract::tag<contract_field::labels>) const {
+    decltype(auto) contract_get(const contract_fields::labels&) const {
         return (labels);
     }
 };
@@ -982,73 +982,73 @@ Map make_label_map(std::size_t count, std::uint32_t start, std::size_t text_size
 
 CONTRACT_NOINLINE void exercise_hooked_fixtures(volatile std::uint64_t& sink) {
     BenchNumericHooked numeric;
-    numeric.contract_set(contract::tag<BenchNumericHooked::contract_field::id>{}, 101u);
-    numeric.contract_set(contract::tag<BenchNumericHooked::contract_field::count>{}, 43u);
-    numeric.contract_set(contract::tag<BenchNumericHooked::contract_field::ratio>{}, 4.25);
-    numeric.contract_set(contract::tag<BenchNumericHooked::contract_field::total>{}, 9001u);
-    sink += numeric.contract_get(contract::tag<BenchNumericHooked::contract_field::id>{});
-    sink += numeric.contract_get(contract::tag<BenchNumericHooked::contract_field::count>{});
-    sink += static_cast<std::uint64_t>(numeric.contract_get(contract::tag<BenchNumericHooked::contract_field::ratio>{}));
-    sink += numeric.contract_get(contract::tag<BenchNumericHooked::contract_field::total>{});
+    numeric.contract_set(BenchNumericHooked::contract_fields::id{"id", {}}, 101u);
+    numeric.contract_set(BenchNumericHooked::contract_fields::count{"count", {}}, 43u);
+    numeric.contract_set(BenchNumericHooked::contract_fields::ratio{"ratio", {}}, 4.25);
+    numeric.contract_set(BenchNumericHooked::contract_fields::total{"total", {}}, 9001u);
+    sink += numeric.contract_get(BenchNumericHooked::contract_fields::id{"id", {}});
+    sink += numeric.contract_get(BenchNumericHooked::contract_fields::count{"count", {}});
+    sink += static_cast<std::uint64_t>(numeric.contract_get(BenchNumericHooked::contract_fields::ratio{"ratio", {}}));
+    sink += numeric.contract_get(BenchNumericHooked::contract_fields::total{"total", {}});
 
     BenchStringHooked string_hooked;
-    string_hooked.contract_set(contract::tag<BenchStringHooked::contract_field::name>{}, std::string("hooked"));
-    sink += string_hooked.contract_get(contract::tag<BenchStringHooked::contract_field::name>{}).size();
+    string_hooked.contract_set(BenchStringHooked::contract_fields::name{"name", {}}, std::string("hooked"));
+    sink += string_hooked.contract_get(BenchStringHooked::contract_fields::name{"name", {}}).size();
 
     std::string_view view_storage = "hooked-view";
     BenchStringViewHooked view_hooked;
-    view_hooked.contract_set(contract::tag<BenchStringViewHooked::contract_field::name>{}, view_storage);
-    sink += view_hooked.contract_get(contract::tag<BenchStringViewHooked::contract_field::name>{}).size();
+    view_hooked.contract_set(BenchStringViewHooked::contract_fields::name{"name", {}}, view_storage);
+    sink += view_hooked.contract_get(BenchStringViewHooked::contract_fields::name{"name", {}}).size();
 
     const char* cstring_storage = "hooked-cstr";
     BenchCStringHooked cstring_hooked;
-    cstring_hooked.contract_set(contract::tag<BenchCStringHooked::contract_field::category>{}, cstring_storage);
-    sink += std::char_traits<char>::length(cstring_hooked.contract_get(contract::tag<BenchCStringHooked::contract_field::category>{}));
+    cstring_hooked.contract_set(BenchCStringHooked::contract_fields::category{"category", {}}, cstring_storage);
+    sink += std::char_traits<char>::length(cstring_hooked.contract_get(BenchCStringHooked::contract_fields::category{"category", {}}));
 
     BenchCharArrayHooked8 char8;
-    char8.contract_set(contract::tag<BenchCharArrayHooked8::contract_field::tag>{}, make_char_payload<8>('h').data());
-    sink += static_cast<unsigned char>(char8.contract_get(contract::tag<BenchCharArrayHooked8::contract_field::tag>{})[0]);
+    char8.contract_set(BenchCharArrayHooked8::contract_fields::tag{"tag", {}}, make_char_payload<8>('h').data());
+    sink += static_cast<unsigned char>(char8.contract_get(BenchCharArrayHooked8::contract_fields::tag{"tag", {}})[0]);
 
     BenchCharArrayHooked1000 char1000;
-    char1000.contract_set(contract::tag<BenchCharArrayHooked1000::contract_field::tag>{}, make_char_payload<1000>('h').data());
-    sink += static_cast<unsigned char>(char1000.contract_get(contract::tag<BenchCharArrayHooked1000::contract_field::tag>{})[0]);
+    char1000.contract_set(BenchCharArrayHooked1000::contract_fields::tag{"tag", {}}, make_char_payload<1000>('h').data());
+    sink += static_cast<unsigned char>(char1000.contract_get(BenchCharArrayHooked1000::contract_fields::tag{"tag", {}})[0]);
 
     BenchRequestEventHooked request;
-    request.contract_set(contract::tag<BenchRequestBase::contract_field::timestamp>{}, 8u);
-    request.contract_set(contract::tag<BenchRequestBase::contract_field::service>{}, 12u);
-    request.contract_set(contract::tag<BenchRequestEventHooked::contract_field::user_id>{}, 43u);
-    sink += request.contract_get(contract::tag<BenchRequestBase::contract_field::timestamp>{});
-    sink += request.contract_get(contract::tag<BenchRequestBase::contract_field::service>{});
-    sink += request.contract_get(contract::tag<BenchRequestEventHooked::contract_field::user_id>{});
+    request.contract_set(BenchRequestBase::contract_fields::timestamp{"timestamp", {}}, 8u);
+    request.contract_set(BenchRequestBase::contract_fields::service{"service", {}}, 12u);
+    request.contract_set(BenchRequestEventHooked::contract_fields::user_id{"user_id", {}}, 43u);
+    sink += request.contract_get(BenchRequestBase::contract_fields::timestamp{"timestamp", {}});
+    sink += request.contract_get(BenchRequestBase::contract_fields::service{"service", {}});
+    sink += request.contract_get(BenchRequestEventHooked::contract_fields::user_id{"user_id", {}});
 
     BenchRoutedEventHooked routed;
-    routed.contract_set(contract::tag<BenchRequestBase::contract_field::timestamp>{}, 8u);
-    routed.contract_set(contract::tag<BenchRequestBase::contract_field::service>{}, 12u);
-    routed.contract_set(contract::tag<BenchTraceContext::contract_field::trace_id>{}, 6u);
-    routed.contract_set(contract::tag<BenchRoutedEventHooked::contract_field::route_id>{}, 10u);
-    sink += routed.contract_get(contract::tag<BenchRequestBase::contract_field::timestamp>{});
-    sink += routed.contract_get(contract::tag<BenchRequestBase::contract_field::service>{});
-    sink += routed.contract_get(contract::tag<BenchTraceContext::contract_field::trace_id>{});
-    sink += routed.contract_get(contract::tag<BenchRoutedEventHooked::contract_field::route_id>{});
+    routed.contract_set(BenchRequestBase::contract_fields::timestamp{"timestamp", {}}, 8u);
+    routed.contract_set(BenchRequestBase::contract_fields::service{"service", {}}, 12u);
+    routed.contract_set(BenchTraceContext::contract_fields::trace_id{"trace_id", {}}, 6u);
+    routed.contract_set(BenchRoutedEventHooked::contract_fields::route_id{"route_id", {}}, 10u);
+    sink += routed.contract_get(BenchRequestBase::contract_fields::timestamp{"timestamp", {}});
+    sink += routed.contract_get(BenchRequestBase::contract_fields::service{"service", {}});
+    sink += routed.contract_get(BenchTraceContext::contract_fields::trace_id{"trace_id", {}});
+    sink += routed.contract_get(BenchRoutedEventHooked::contract_fields::route_id{"route_id", {}});
 
     BenchVectorHooked vector;
-    vector.contract_set(contract::tag<BenchVectorHooked::contract_field::values>{}, std::vector<std::uint32_t>{7, 8, 9, 10});
-    sink += vector.contract_get(contract::tag<BenchVectorHooked::contract_field::values>{})[0];
+    vector.contract_set(BenchVectorHooked::contract_fields::values{"values", {}}, std::vector<std::uint32_t>{7, 8, 9, 10});
+    sink += vector.contract_get(BenchVectorHooked::contract_fields::values{"values", {}})[0];
 
     BenchArrayHooked4 array4;
-    array4.contract_set(contract::tag<BenchArrayHooked4::contract_field::values>{}, std::array<std::uint32_t, 4>{9, 10, 11, 12});
-    sink += array4.contract_get(contract::tag<BenchArrayHooked4::contract_field::values>{})[0];
+    array4.contract_set(BenchArrayHooked4::contract_fields::values{"values", {}}, std::array<std::uint32_t, 4>{9, 10, 11, 12});
+    sink += array4.contract_get(BenchArrayHooked4::contract_fields::values{"values", {}})[0];
 
     BenchTupleHooked tuple;
-    tuple.contract_set(contract::tag<BenchTupleHooked::contract_field::payload>{}, std::tuple<std::uint32_t, std::string, std::array<std::uint32_t, 3>>{
+    tuple.contract_set(BenchTupleHooked::contract_fields::payload{"payload", {}}, std::tuple<std::uint32_t, std::string, std::array<std::uint32_t, 3>>{
         19,
         "tuple-alt",
         {7, 8, 9}
     });
-    sink += std::get<0>(tuple.contract_get(contract::tag<BenchTupleHooked::contract_field::payload>{}));
+    sink += std::get<0>(tuple.contract_get(BenchTupleHooked::contract_fields::payload{"payload", {}}));
 
     BenchVariantHooked variant;
-    variant.contract_set(contract::tag<BenchVariantHooked::contract_field::payload>{}, std::array<std::uint32_t, 3>{4, 5, 6});
+    variant.contract_set(BenchVariantHooked::contract_fields::payload{"payload", {}}, std::array<std::uint32_t, 3>{4, 5, 6});
     sink += std::visit([](const auto& item) -> std::uint64_t {
         using item_type = std::decay_t<decltype(item)>;
         if constexpr (std::is_same_v<item_type, std::uint32_t>) {
@@ -1058,27 +1058,27 @@ CONTRACT_NOINLINE void exercise_hooked_fixtures(volatile std::uint64_t& sink) {
         } else {
             return item[0];
         }
-    }, variant.contract_get(contract::tag<BenchVariantHooked::contract_field::payload>{}));
+    }, variant.contract_get(BenchVariantHooked::contract_fields::payload{"payload", {}}));
 
     BenchMapHooked map;
-    map.contract_set(contract::tag<BenchMapHooked::contract_field::labels>{}, make_label_map<std::map<std::uint32_t, std::string>>(2, 9, 8));
-    sink += map.contract_get(contract::tag<BenchMapHooked::contract_field::labels>{}).size();
+    map.contract_set(BenchMapHooked::contract_fields::labels{"labels", {}}, make_label_map<std::map<std::uint32_t, std::string>>(2, 9, 8));
+    sink += map.contract_get(BenchMapHooked::contract_fields::labels{"labels", {}}).size();
 
     BenchOptionalHooked optional;
-    optional.contract_set(contract::tag<BenchOptionalHooked::contract_field::count>{}, std::optional<std::uint32_t>{44});
-    sink += optional.contract_get(contract::tag<BenchOptionalHooked::contract_field::count>{}).value_or(0);
+    optional.contract_set(BenchOptionalHooked::contract_fields::count{"count", {}}, std::optional<std::uint32_t>{44});
+    sink += optional.contract_get(BenchOptionalHooked::contract_fields::count{"count", {}}).value_or(0);
 
     BenchBitsetHooked10 bitset10;
-    bitset10.contract_set(contract::tag<BenchBitsetHooked10::contract_field::flags>{}, std::bitset<10>{0x155});
-    sink += bitset10.contract_get(contract::tag<BenchBitsetHooked10::contract_field::flags>{}).count();
+    bitset10.contract_set(BenchBitsetHooked10::contract_fields::flags{"flags", {}}, std::bitset<10>{0x155});
+    sink += bitset10.contract_get(BenchBitsetHooked10::contract_fields::flags{"flags", {}}).count();
 
     BenchBitsetHooked100 bitset100;
-    bitset100.contract_set(contract::tag<BenchBitsetHooked100::contract_field::flags>{}, std::bitset<100>{0x5555});
-    sink += bitset100.contract_get(contract::tag<BenchBitsetHooked100::contract_field::flags>{}).count();
+    bitset100.contract_set(BenchBitsetHooked100::contract_fields::flags{"flags", {}}, std::bitset<100>{0x5555});
+    sink += bitset100.contract_get(BenchBitsetHooked100::contract_fields::flags{"flags", {}}).count();
 
     BenchUnorderedMapHooked unordered;
-    unordered.contract_set(contract::tag<BenchUnorderedMapHooked::contract_field::labels>{}, make_label_map<std::unordered_map<std::uint32_t, std::string>>(2, 17, 8));
-    sink += unordered.contract_get(contract::tag<BenchUnorderedMapHooked::contract_field::labels>{}).size();
+    unordered.contract_set(BenchUnorderedMapHooked::contract_fields::labels{"labels", {}}, make_label_map<std::unordered_map<std::uint32_t, std::string>>(2, 17, 8));
+    sink += unordered.contract_get(BenchUnorderedMapHooked::contract_fields::labels{"labels", {}}).size();
 }
 
 void write_size(unsigned char*& out, std::size_t value) {

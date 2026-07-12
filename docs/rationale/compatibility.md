@@ -29,6 +29,7 @@ Useful rules:
 - keep field ids stable once published;
 - reserve ids that are removed;
 - treat field kind changes carefully;
+- treat `member` / `reference` / `property` transitions as compatibility-relevant;
 - distinguish optional, repeated, and required-like changes;
 - prefer additive changes over destructive changes;
 - track base offset collisions and field id reuse as explicit checks.

@@ -49,9 +49,10 @@ If these answers are unclear, the adapter contract is not ready yet.
 The common adapter execution path is intentionally small:
 
 ```text
-contract descriptors
+contract::field descriptors
+  Field::kind            member / reference / property classification
   Field::get(obj)        adapter-facing read access
-  Field::ref(obj)        direct physical storage reference
+  Field::ref(obj)        direct physical storage reference when available
   Field::set(obj, value) semantic write path for properties and custom setters
 
 contract::io
@@ -73,7 +74,7 @@ codec<T>
 
 The rule is:
 
-- `contract` knows access;
+- `contract` knows field identity, kind, and access shape;
 - `io` knows bytes and cursor movement;
 - `io` may expose optional contiguous read or write windows when an adapter
   can use them directly;
@@ -82,6 +83,8 @@ The rule is:
   chooses to factor that shape out.
 - adapter traits own the handling matrix, and the contract dispatch point
   validates the current `T` against it.
+- field-aware code uses the descriptor's `kind`, `get`, `ref`, and `set`
+  functions instead of inventing a second access model.
 - helper functions should stay small and local; if they only move data between
   existing methods, they are usually a sign that the boundary is still blurry.
 

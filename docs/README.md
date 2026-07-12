@@ -9,7 +9,7 @@ repository [`README.md`](../README.md).
 
 ## Layer Map
 
-- [`core.md`](core.md) - the `CONTRACT` definition model and field graph.
+- [`core.md`](core.md) - the `CONTRACT` definition model, field descriptors, and field graph.
 - [`io.md`](io.md) - byte backends and convenience facades.
 - [`adapters/README.md`](adapters/README.md) - the shared public adapter contract, traversal, rendering, and
   encoding; the family pages (console, binary, compact, protobuf, JSON, YAML)
@@ -19,6 +19,7 @@ repository [`README.md`](../README.md).
 - [`include_map.md`](include_map.md) - the current public include tree and suggested bundles.
 - [`reference/`](reference/) - canonical examples and benchmarks.
 - [`rationale/`](rationale/) - design intent and tradeoffs:
+  - [`field_identity_refactor.md`](rationale/field_identity_refactor.md) - proposed removal of per-field access tags.
   - [`positioning.md`](rationale/positioning.md) - why CONTRACT exists.
   - [`tradeoffs.md`](rationale/tradeoffs.md) - why the layer split and object-based API look the way they do.
   - [`extensions.md`](rationale/extensions.md) - public query surface and adapter extension points.

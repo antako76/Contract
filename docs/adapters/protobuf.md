@@ -68,7 +68,8 @@ models.
   binary adapter family.
 - field-aware overloads parse protobuf tags, wire types, and length prefixes;
   value-only overloads consume only the payload and require an already bounded
-  reader or writer.
+  reader or writer. The field-aware path receives the real CONTRACT descriptor,
+  so it can see field id, name, kind, and attributes.
   For example:
 
   ```cpp

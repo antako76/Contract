@@ -7,9 +7,10 @@ This page explains why CONTRACT exists and what problem it solves.
 `CONTRACT` gives serializers and adapters a compile-time data contract.
 
 Native C++ structs own the data. A `CONTRACT(...)` block declares stable field
-metadata once: field ids, names, types, base imports, physical fields, and
-logical properties. Adapters then use that typed compile-time contract to write
-protobuf, binary, JSON/debug, backup, schema, export, or validation logic.
+metadata once: field ids, names, generated field descriptors, field kinds,
+base imports, physical fields, reference fields, and logical properties.
+Adapters then use that typed compile-time contract to write protobuf, binary,
+JSON/debug, backup, schema, export, or validation logic.
 
 ```text
 Data classes own data.
@@ -61,8 +62,9 @@ serializer macro.
 - A small compile-time layer over native C++ structs.
 - Stable external field ids and names.
 - Typed field descriptors and traversal.
+- Generated field tags that carry access shape.
 - Base contract flattening through explicit offsets.
-- Physical fields and logical/computed properties.
+- Physical fields, reference fields, and logical/computed properties.
 - Extension points for access customization, type codecs, and field policies.
 
 ## What CONTRACT Is Not

@@ -88,11 +88,11 @@ struct Event : Middle {
         PROPERTY(value, 2, std::uint32_t,
             field_code{40}, other{50}, label{"property"}, label{"display"}))
 
-    std::uint32_t contract_get(contract::tag<contract_field::value>) const {
+    std::uint32_t contract_get(const contract_fields::value&) const {
         return raw_value;
     }
 
-    void contract_set(contract::tag<contract_field::value>, std::uint32_t value) {
+    void contract_set(const contract_fields::value&, std::uint32_t value) {
         raw_value = value;
     }
 };

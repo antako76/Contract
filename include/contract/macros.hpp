@@ -218,6 +218,24 @@
     ::contract::describe_attribute((value), CONTRACT_STRINGIZE(value))
 
 #define BASE(type, offset) (CONTRACT_BASE_MARKER, type, offset)
+#define REFERENCE(...) CONTRACT_PP_CAT(CONTRACT_REFERENCE_, CONTRACT_PP_NARG(__VA_ARGS__))(__VA_ARGS__)
+#define CONTRACT_REFERENCE_2(name, id) (CONTRACT_REFERENCE_MARKER, name, id)
+#define CONTRACT_REFERENCE_WITH_ATTRS(name, id, ...) \
+    (CONTRACT_REFERENCE_MARKER, name, id, __VA_ARGS__)
+#define CONTRACT_REFERENCE_3 CONTRACT_REFERENCE_WITH_ATTRS
+#define CONTRACT_REFERENCE_4 CONTRACT_REFERENCE_WITH_ATTRS
+#define CONTRACT_REFERENCE_5 CONTRACT_REFERENCE_WITH_ATTRS
+#define CONTRACT_REFERENCE_6 CONTRACT_REFERENCE_WITH_ATTRS
+#define CONTRACT_REFERENCE_7 CONTRACT_REFERENCE_WITH_ATTRS
+#define CONTRACT_REFERENCE_8 CONTRACT_REFERENCE_WITH_ATTRS
+#define CONTRACT_REFERENCE_9 CONTRACT_REFERENCE_WITH_ATTRS
+#define CONTRACT_REFERENCE_10 CONTRACT_REFERENCE_WITH_ATTRS
+#define CONTRACT_REFERENCE_11 CONTRACT_REFERENCE_WITH_ATTRS
+#define CONTRACT_REFERENCE_12 CONTRACT_REFERENCE_WITH_ATTRS
+#define CONTRACT_REFERENCE_13 CONTRACT_REFERENCE_WITH_ATTRS
+#define CONTRACT_REFERENCE_14 CONTRACT_REFERENCE_WITH_ATTRS
+#define CONTRACT_REFERENCE_15 CONTRACT_REFERENCE_WITH_ATTRS
+#define CONTRACT_REFERENCE_16 CONTRACT_REFERENCE_WITH_ATTRS
 // PROPERTY keeps the legacy 3-argument form and adds an attrs-bearing form.
 #define PROPERTY(...) CONTRACT_PP_CAT(CONTRACT_PROPERTY_, CONTRACT_PP_NARG(__VA_ARGS__))(__VA_ARGS__)
 #define CONTRACT_PROPERTY_3(name, id, type) (CONTRACT_PROPERTY_MARKER, name, id, type)
@@ -248,6 +266,9 @@
 #define CONTRACT_IS_PROPERTY_MARKER(value) CONTRACT_PP_IS_PROBE(CONTRACT_PP_CAT(CONTRACT_IS_PROPERTY_MARKER_, value))
 #define CONTRACT_IS_PROPERTY_MARKER_CONTRACT_PROPERTY_MARKER CONTRACT_PP_PROBE()
 
+#define CONTRACT_IS_REFERENCE_MARKER(value) CONTRACT_PP_IS_PROBE(CONTRACT_PP_CAT(CONTRACT_IS_REFERENCE_MARKER_, value))
+#define CONTRACT_IS_REFERENCE_MARKER_CONTRACT_REFERENCE_MARKER CONTRACT_PP_PROBE()
+
 #define CONTRACT_IS_ATTRS_MARKER(value) CONTRACT_PP_IS_PROBE(CONTRACT_PP_CAT(CONTRACT_IS_ATTRS_MARKER_, value))
 #define CONTRACT_IS_ATTRS_MARKER_CONTRACT_ATTRS_MARKER CONTRACT_PP_PROBE()
 
@@ -258,60 +279,21 @@
 // Entry detection is marker-based, so the same tuple syntax can carry attrs.
 #define CONTRACT_ENTRY_IS_BASE(entry) CONTRACT_IS_BASE_MARKER(CONTRACT_ENTRY_HEAD(entry))
 #define CONTRACT_ENTRY_IS_PROPERTY(entry) CONTRACT_IS_PROPERTY_MARKER(CONTRACT_ENTRY_HEAD(entry))
+#define CONTRACT_ENTRY_IS_REFERENCE(entry) CONTRACT_IS_REFERENCE_MARKER(CONTRACT_ENTRY_HEAD(entry))
 #define CONTRACT_ENTRY_IS_ATTRS(entry) CONTRACT_IS_ATTRS_MARKER(CONTRACT_ENTRY_HEAD(entry))
 #define CONTRACT_ENTRY_KIND(entry) \
     CONTRACT_PP_CAT(CONTRACT_ENTRY_KIND_BASE_, CONTRACT_ENTRY_IS_BASE(entry))(entry)
 
 #define CONTRACT_ENTRY_KIND_BASE_1(entry) 1
 #define CONTRACT_ENTRY_KIND_BASE_0(entry) \
+    CONTRACT_PP_CAT(CONTRACT_ENTRY_KIND_REFERENCE_, CONTRACT_ENTRY_IS_REFERENCE(entry))(entry)
+
+#define CONTRACT_ENTRY_KIND_REFERENCE_1(entry) 2
+#define CONTRACT_ENTRY_KIND_REFERENCE_0(entry) \
     CONTRACT_PP_CAT(CONTRACT_ENTRY_KIND_PROPERTY_, CONTRACT_ENTRY_IS_PROPERTY(entry))(entry)
 
-#define CONTRACT_ENTRY_KIND_PROPERTY_1(entry) 2
+#define CONTRACT_ENTRY_KIND_PROPERTY_1(entry) 3
 #define CONTRACT_ENTRY_KIND_PROPERTY_0(entry) 0
-
-#define CONTRACT_DECLARE_FIELD_TAG(contract_self_type, pair) \
-    CONTRACT_PP_CAT(CONTRACT_DECLARE_FIELD_TAG_, CONTRACT_ENTRY_KIND(pair))(contract_self_type, pair)
-
-// Physical field tags carry the generated member access alongside the tag
-// identity, so no separate per-field access struct is injected into the
-// owner class. The generated members use the contract_ prefix: the library
-// already reserves it (contract_get/contract_set hooks, contract_definition,
-// contract_field), so plain field names like get/set stay usable.
-#define CONTRACT_DECLARE_FIELD_TAG_0(contract_self_type, pair) \
-    CONTRACT_DECLARE_FIELD_TAG_0_NAME(contract_self_type, CONTRACT_PAIR_NAME(pair))
-
-#define CONTRACT_DECLARE_FIELD_TAG_0_NAME(contract_self_type, name) \
-    CONTRACT_DECLARE_FIELD_TAG_0_NAME_IMPL(contract_self_type, name)
-
-#define CONTRACT_DECLARE_FIELD_TAG_0_NAME_IMPL(contract_self_type, name) \
-    struct name { \
-        template<class Obj> \
-        static constexpr decltype(auto) contract_get(Obj& obj) { \
-            return (obj.name); \
-        } \
-        template<class Obj> \
-        static constexpr decltype(auto) contract_get(const Obj& obj) { \
-            return (obj.name); \
-        } \
-        template<class OwnerT = contract_self_type> \
-        static constexpr auto contract_member_pointer() -> decltype(&OwnerT::name) { \
-            return &OwnerT::name; \
-        } \
-        template<class Obj, class Value> \
-        static constexpr auto contract_set(Obj& obj, Value&& value) \
-            requires std::is_assignable_v< \
-                decltype((std::declval<Obj&>().name)), \
-                Value&&> { \
-            obj.name = std::forward<Value>(value); \
-        } \
-    };
-
-#define CONTRACT_DECLARE_FIELD_TAG_1(contract_self_type, pair)
-
-// Property tags stay empty: properties have no physical member to access,
-// their value access is hook-driven.
-#define CONTRACT_DECLARE_FIELD_TAG_2(contract_self_type, entry) \
-    struct CONTRACT_PROPERTY_NAME(entry) {};
 
 #define CONTRACT_BASE_TYPE(entry) CONTRACT_BASE_TYPE_IMPL entry
 #define CONTRACT_BASE_TYPE_IMPL(marker, type, offset) type
@@ -322,6 +304,9 @@
 #define CONTRACT_PROPERTY_NAME(entry) CONTRACT_PROPERTY_NAME_IMPL entry
 #define CONTRACT_PROPERTY_NAME_IMPL(marker, name, id, type, ...) name
 
+#define CONTRACT_REFERENCE_NAME(entry) CONTRACT_REFERENCE_NAME_IMPL entry
+#define CONTRACT_REFERENCE_NAME_IMPL(marker, name, id, ...) name
+
 #define CONTRACT_ATTRS_VALUES(entry) CONTRACT_ATTRS_VALUES_IMPL entry
 #define CONTRACT_ATTRS_VALUES_IMPL(marker, ...) __VA_ARGS__
 
@@ -331,6 +316,114 @@
 
 #define CONTRACT_MAKE_ENTRY(contract_self_type, entry) \
     CONTRACT_PP_CAT(CONTRACT_MAKE_ENTRY_, CONTRACT_ENTRY_KIND(entry))(contract_self_type, entry)
+
+#define CONTRACT_DECLARE_FIELD(contract_self_type, entry) \
+    CONTRACT_PP_CAT(CONTRACT_DECLARE_FIELD_, CONTRACT_ENTRY_KIND(entry))(contract_self_type, entry)
+
+#define CONTRACT_DECLARE_FIELD_0(contract_self_type, pair) \
+    CONTRACT_DECLARE_FIELD_0_EXPAND(contract_self_type, CONTRACT_PP_UNPAREN pair)
+
+#define CONTRACT_DECLARE_FIELD_0_EXPAND(contract_self_type, ...) \
+    CONTRACT_PP_CAT(CONTRACT_DECLARE_FIELD_0_, CONTRACT_PP_NARG(__VA_ARGS__))(contract_self_type, __VA_ARGS__)
+
+#define CONTRACT_DECLARE_FIELD_0_BUILD(contract_self_type, name, id, ...) \
+    using name = decltype(::contract::make_member_field<contract_self_type, id, &contract_self_type::name>( \
+        CONTRACT_STRINGIZE(name), CONTRACT_MAKE_FIELD_ATTRIBUTES(__VA_ARGS__)));
+
+#define CONTRACT_DECLARE_FIELD_0_2(contract_self_type, name, id) \
+    CONTRACT_DECLARE_FIELD_0_BUILD(contract_self_type, name, id)
+#define CONTRACT_DECLARE_FIELD_0_WITH_ATTRS(contract_self_type, name, id, ...) \
+    CONTRACT_DECLARE_FIELD_0_BUILD(contract_self_type, name, id, __VA_ARGS__)
+#define CONTRACT_DECLARE_FIELD_0_3 CONTRACT_DECLARE_FIELD_0_WITH_ATTRS
+#define CONTRACT_DECLARE_FIELD_0_4 CONTRACT_DECLARE_FIELD_0_WITH_ATTRS
+#define CONTRACT_DECLARE_FIELD_0_5 CONTRACT_DECLARE_FIELD_0_WITH_ATTRS
+#define CONTRACT_DECLARE_FIELD_0_6 CONTRACT_DECLARE_FIELD_0_WITH_ATTRS
+#define CONTRACT_DECLARE_FIELD_0_7 CONTRACT_DECLARE_FIELD_0_WITH_ATTRS
+#define CONTRACT_DECLARE_FIELD_0_8 CONTRACT_DECLARE_FIELD_0_WITH_ATTRS
+#define CONTRACT_DECLARE_FIELD_0_9 CONTRACT_DECLARE_FIELD_0_WITH_ATTRS
+#define CONTRACT_DECLARE_FIELD_0_10 CONTRACT_DECLARE_FIELD_0_WITH_ATTRS
+#define CONTRACT_DECLARE_FIELD_0_11 CONTRACT_DECLARE_FIELD_0_WITH_ATTRS
+#define CONTRACT_DECLARE_FIELD_0_12 CONTRACT_DECLARE_FIELD_0_WITH_ATTRS
+#define CONTRACT_DECLARE_FIELD_0_13 CONTRACT_DECLARE_FIELD_0_WITH_ATTRS
+#define CONTRACT_DECLARE_FIELD_0_14 CONTRACT_DECLARE_FIELD_0_WITH_ATTRS
+#define CONTRACT_DECLARE_FIELD_0_15 CONTRACT_DECLARE_FIELD_0_WITH_ATTRS
+#define CONTRACT_DECLARE_FIELD_0_16 CONTRACT_DECLARE_FIELD_0_WITH_ATTRS
+
+#define CONTRACT_DECLARE_FIELD_1(contract_self_type, entry)
+
+#define CONTRACT_DECLARE_FIELD_2(contract_self_type, entry) \
+    CONTRACT_DECLARE_REFERENCE_FIELD(contract_self_type, entry)
+
+#define CONTRACT_DECLARE_REFERENCE_FIELD(contract_self_type, entry) \
+    CONTRACT_DECLARE_REFERENCE_FIELD_EXPAND(contract_self_type, CONTRACT_PP_UNPAREN entry)
+
+#define CONTRACT_DECLARE_REFERENCE_FIELD_EXPAND(contract_self_type, ...) \
+    CONTRACT_PP_CAT(CONTRACT_DECLARE_REFERENCE_FIELD_, CONTRACT_PP_NARG(__VA_ARGS__))(contract_self_type, __VA_ARGS__)
+
+#define CONTRACT_DECLARE_REFERENCE_FIELD_BUILD(contract_self_type, name, id, ...) \
+    struct name : ::contract::field< \
+        contract_self_type, id, ::contract::field_kind::reference, \
+        decltype(CONTRACT_MAKE_FIELD_ATTRIBUTES(__VA_ARGS__)), \
+        std::remove_cvref_t<decltype(contract_self_type::name)>, nullptr, name> { \
+        using base_type = ::contract::field< \
+            contract_self_type, id, ::contract::field_kind::reference, \
+            decltype(CONTRACT_MAKE_FIELD_ATTRIBUTES(__VA_ARGS__)), \
+            std::remove_cvref_t<decltype(contract_self_type::name)>, nullptr, name>; \
+        using base_type::base_type; \
+        template<class Obj> \
+        static constexpr decltype(auto) contract_ref_get(Obj& obj) { return (obj.name); } \
+        template<class Obj> \
+        static constexpr decltype(auto) contract_ref_get(const Obj& obj) { return (obj.name); } \
+        template<class Obj, class Value> \
+        static constexpr void contract_ref_set(Obj& obj, Value&& value) \
+            requires std::is_assignable_v<decltype((std::declval<Obj&>().name)), Value&&> { \
+            obj.name = std::forward<Value>(value); \
+        } \
+    };
+
+#define CONTRACT_DECLARE_REFERENCE_FIELD_3(contract_self_type, marker, name, id) \
+    CONTRACT_DECLARE_REFERENCE_FIELD_BUILD(contract_self_type, name, id)
+#define CONTRACT_DECLARE_REFERENCE_FIELD_WITH_ATTRS(contract_self_type, marker, name, id, ...) \
+    CONTRACT_DECLARE_REFERENCE_FIELD_BUILD(contract_self_type, name, id, __VA_ARGS__)
+#define CONTRACT_DECLARE_REFERENCE_FIELD_4 CONTRACT_DECLARE_REFERENCE_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_REFERENCE_FIELD_5 CONTRACT_DECLARE_REFERENCE_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_REFERENCE_FIELD_6 CONTRACT_DECLARE_REFERENCE_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_REFERENCE_FIELD_7 CONTRACT_DECLARE_REFERENCE_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_REFERENCE_FIELD_8 CONTRACT_DECLARE_REFERENCE_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_REFERENCE_FIELD_9 CONTRACT_DECLARE_REFERENCE_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_REFERENCE_FIELD_10 CONTRACT_DECLARE_REFERENCE_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_REFERENCE_FIELD_11 CONTRACT_DECLARE_REFERENCE_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_REFERENCE_FIELD_12 CONTRACT_DECLARE_REFERENCE_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_REFERENCE_FIELD_13 CONTRACT_DECLARE_REFERENCE_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_REFERENCE_FIELD_14 CONTRACT_DECLARE_REFERENCE_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_REFERENCE_FIELD_15 CONTRACT_DECLARE_REFERENCE_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_REFERENCE_FIELD_16 CONTRACT_DECLARE_REFERENCE_FIELD_WITH_ATTRS
+
+#define CONTRACT_DECLARE_FIELD_3(contract_self_type, entry) \
+    CONTRACT_DECLARE_PROPERTY_FIELD(contract_self_type, entry)
+
+#define CONTRACT_DECLARE_PROPERTY_FIELD(contract_self_type, entry) \
+    CONTRACT_DECLARE_PROPERTY_FIELD_EXPAND(contract_self_type, CONTRACT_PP_UNPAREN entry)
+#define CONTRACT_DECLARE_PROPERTY_FIELD_EXPAND(contract_self_type, ...) \
+    CONTRACT_PP_CAT(CONTRACT_DECLARE_PROPERTY_FIELD_, CONTRACT_PP_NARG(__VA_ARGS__))(contract_self_type, __VA_ARGS__)
+#define CONTRACT_DECLARE_PROPERTY_FIELD_4(contract_self_type, marker, name, id, type) \
+    using name = decltype(::contract::make_property_field<contract_self_type, id, type>( \
+        CONTRACT_STRINGIZE(name), CONTRACT_MAKE_FIELD_ATTRIBUTES()));
+#define CONTRACT_DECLARE_PROPERTY_FIELD_WITH_ATTRS(contract_self_type, marker, name, id, type, ...) \
+    using name = decltype(::contract::make_property_field<contract_self_type, id, type>( \
+        CONTRACT_STRINGIZE(name), CONTRACT_MAKE_FIELD_ATTRIBUTES(__VA_ARGS__)));
+#define CONTRACT_DECLARE_PROPERTY_FIELD_5 CONTRACT_DECLARE_PROPERTY_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_PROPERTY_FIELD_6 CONTRACT_DECLARE_PROPERTY_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_PROPERTY_FIELD_7 CONTRACT_DECLARE_PROPERTY_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_PROPERTY_FIELD_8 CONTRACT_DECLARE_PROPERTY_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_PROPERTY_FIELD_9 CONTRACT_DECLARE_PROPERTY_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_PROPERTY_FIELD_10 CONTRACT_DECLARE_PROPERTY_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_PROPERTY_FIELD_11 CONTRACT_DECLARE_PROPERTY_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_PROPERTY_FIELD_12 CONTRACT_DECLARE_PROPERTY_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_PROPERTY_FIELD_13 CONTRACT_DECLARE_PROPERTY_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_PROPERTY_FIELD_14 CONTRACT_DECLARE_PROPERTY_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_PROPERTY_FIELD_15 CONTRACT_DECLARE_PROPERTY_FIELD_WITH_ATTRS
+#define CONTRACT_DECLARE_PROPERTY_FIELD_16 CONTRACT_DECLARE_PROPERTY_FIELD_WITH_ATTRS
 
 #define CONTRACT_MAKE_ENTRY_0(contract_self_type, pair) \
     CONTRACT_MAKE_ENTRY_0_EXPAND(contract_self_type, CONTRACT_PP_UNPAREN pair)
@@ -346,10 +439,7 @@
     CONTRACT_MAKE_ENTRY_0_BUILD(contract_self_type, name, id, __VA_ARGS__)
 
 #define CONTRACT_MAKE_ENTRY_0_BUILD(contract_self_type, name, id, ...) \
-    ::contract::make_field< \
-        contract_self_type, \
-        typename contract_field::name, \
-        id>( \
+    ::contract::make_member_field<contract_self_type, id, &contract_self_type::name>( \
             CONTRACT_STRINGIZE(name), \
             CONTRACT_MAKE_FIELD_ATTRIBUTES(__VA_ARGS__))
 
@@ -371,9 +461,35 @@
 #define CONTRACT_MAKE_ENTRY_1(contract_self_type, entry) \
     ::contract::base<CONTRACT_BASE_TYPE(entry), CONTRACT_BASE_OFFSET(entry)>{}
 
+#define CONTRACT_MAKE_ENTRY_2(contract_self_type, entry) \
+    CONTRACT_MAKE_REFERENCE_ENTRY_EXPAND(contract_self_type, CONTRACT_PP_UNPAREN entry)
+
+#define CONTRACT_MAKE_REFERENCE_ENTRY_EXPAND(contract_self_type, ...) \
+    CONTRACT_PP_CAT(CONTRACT_MAKE_REFERENCE_ENTRY_, CONTRACT_PP_NARG(__VA_ARGS__))(contract_self_type, __VA_ARGS__)
+
+#define CONTRACT_MAKE_REFERENCE_ENTRY_3(contract_self_type, marker, name, id) \
+    typename contract_fields::name{CONTRACT_STRINGIZE(name), CONTRACT_MAKE_FIELD_ATTRIBUTES()}
+
+#define CONTRACT_MAKE_REFERENCE_ENTRY_WITH_ATTRS(contract_self_type, marker, name, id, ...) \
+    typename contract_fields::name{CONTRACT_STRINGIZE(name), CONTRACT_MAKE_FIELD_ATTRIBUTES(__VA_ARGS__)}
+
+#define CONTRACT_MAKE_REFERENCE_ENTRY_4 CONTRACT_MAKE_REFERENCE_ENTRY_WITH_ATTRS
+#define CONTRACT_MAKE_REFERENCE_ENTRY_5 CONTRACT_MAKE_REFERENCE_ENTRY_WITH_ATTRS
+#define CONTRACT_MAKE_REFERENCE_ENTRY_6 CONTRACT_MAKE_REFERENCE_ENTRY_WITH_ATTRS
+#define CONTRACT_MAKE_REFERENCE_ENTRY_7 CONTRACT_MAKE_REFERENCE_ENTRY_WITH_ATTRS
+#define CONTRACT_MAKE_REFERENCE_ENTRY_8 CONTRACT_MAKE_REFERENCE_ENTRY_WITH_ATTRS
+#define CONTRACT_MAKE_REFERENCE_ENTRY_9 CONTRACT_MAKE_REFERENCE_ENTRY_WITH_ATTRS
+#define CONTRACT_MAKE_REFERENCE_ENTRY_10 CONTRACT_MAKE_REFERENCE_ENTRY_WITH_ATTRS
+#define CONTRACT_MAKE_REFERENCE_ENTRY_11 CONTRACT_MAKE_REFERENCE_ENTRY_WITH_ATTRS
+#define CONTRACT_MAKE_REFERENCE_ENTRY_12 CONTRACT_MAKE_REFERENCE_ENTRY_WITH_ATTRS
+#define CONTRACT_MAKE_REFERENCE_ENTRY_13 CONTRACT_MAKE_REFERENCE_ENTRY_WITH_ATTRS
+#define CONTRACT_MAKE_REFERENCE_ENTRY_14 CONTRACT_MAKE_REFERENCE_ENTRY_WITH_ATTRS
+#define CONTRACT_MAKE_REFERENCE_ENTRY_15 CONTRACT_MAKE_REFERENCE_ENTRY_WITH_ATTRS
+#define CONTRACT_MAKE_REFERENCE_ENTRY_16 CONTRACT_MAKE_REFERENCE_ENTRY_WITH_ATTRS
+
 // Property entries are still descriptors, not storage. Their value access is
 // resolved by hooks in the field layer.
-#define CONTRACT_MAKE_ENTRY_2(contract_self_type, entry) \
+#define CONTRACT_MAKE_ENTRY_3(contract_self_type, entry) \
     CONTRACT_MAKE_ENTRY_2_EXPAND(contract_self_type, CONTRACT_PP_UNPAREN entry)
 
 #define CONTRACT_MAKE_ENTRY_2_EXPAND(contract_self_type, ...) \
@@ -381,20 +497,12 @@
         contract_self_type, __VA_ARGS__)
 
 #define CONTRACT_MAKE_ENTRY_2_4(contract_self_type, marker, name, id, type) \
-    ::contract::make_field< \
-        contract_self_type, \
-        typename contract_field::name, \
-        id, \
-        type>( \
+    ::contract::make_property_field<contract_self_type, id, type>( \
             CONTRACT_STRINGIZE(name), \
             CONTRACT_MAKE_FIELD_ATTRIBUTES())
 
 #define CONTRACT_MAKE_ENTRY_2_WITH_ATTRS(contract_self_type, marker, name, id, type, ...) \
-    ::contract::make_field< \
-        contract_self_type, \
-        typename contract_field::name, \
-        id, \
-        type>( \
+    ::contract::make_property_field<contract_self_type, id, type>( \
             CONTRACT_STRINGIZE(name), \
             CONTRACT_MAKE_FIELD_ATTRIBUTES(__VA_ARGS__))
 
@@ -412,8 +520,8 @@
 #define CONTRACT_MAKE_ENTRY_2_16 CONTRACT_MAKE_ENTRY_2_WITH_ATTRS
 
 #define CONTRACT_DEFINE(contract_self_type, make_contract_expression, ...) \
-    struct contract_field { \
-        CONTRACT_PP_FOR_EACH_ARG(CONTRACT_DECLARE_FIELD_TAG, contract_self_type, __VA_ARGS__) \
+    struct contract_fields { \
+        CONTRACT_PP_FOR_EACH_ARG(CONTRACT_DECLARE_FIELD, contract_self_type, __VA_ARGS__) \
     }; \
     friend constexpr auto contract_definition(::contract::tag<contract_self_type>) { \
         return make_contract_expression( \
@@ -442,8 +550,8 @@
         __VA_ARGS__)
 
 #define CONTRACT_DEFINE_WITH_ATTRIBUTES(contract_self_type, attrs_entry, ...) \
-    struct contract_field { \
-        CONTRACT_PP_FOR_EACH_ARG(CONTRACT_DECLARE_FIELD_TAG, contract_self_type, __VA_ARGS__) \
+    struct contract_fields { \
+        CONTRACT_PP_FOR_EACH_ARG(CONTRACT_DECLARE_FIELD, contract_self_type, __VA_ARGS__) \
     }; \
     friend constexpr auto contract_definition(::contract::tag<contract_self_type>) { \
         return ::contract::make_contract_with_attributes<contract_self_type>( \

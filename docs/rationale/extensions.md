@@ -24,12 +24,18 @@ adapters to depend on internal tuple storage.
 
 Default access is direct member access when possible.
 
+The current core model classifies each field into one of three kinds:
+
+- `member` - the descriptor carries a member pointer and can use direct storage access;
+- `reference` - `REFERENCE(...)` generates a descriptor with direct reference access;
+- `property` - the descriptor is hook-driven only.
+
 The following override shapes stay important:
 
 - physical member override through member hooks;
 - physical member override through ADL-discovered free hooks;
 - logical/property field override through `contract_get` / `contract_set` and
-  [`contract::tag<...>`](../../include/contract/tag.hpp).
+  the concrete field descriptor type.
 
 The design rule is the same as before:
 
@@ -47,16 +53,20 @@ struct HookedMetric {
 
     CONTRACT(HookedMetric, (raw_count, 1))
 
-    int contract_get(contract::tag<contract_field::raw_count>) const {
+    int contract_get(const contract_fields::raw_count&) const {
         return raw_count * 10;
     }
 
     template<class Value>
-    void contract_set(contract::tag<contract_field::raw_count>, Value&& value) {
+    void contract_set(const contract_fields::raw_count&, Value&& value) {
         raw_count = static_cast<int>(std::forward<Value>(value)) / 10;
     }
 };
 ```
+
+This is still a `member` field from the core's point of view: the descriptor
+carries the member pointer and can fall back to direct storage
+when no hook overrides it.
 
 An ADL-discovered free function does the same thing without adding members to
 the type - useful when the type itself cannot be changed:
@@ -67,6 +77,11 @@ int contract_get(const Field&, const FreeHookMetric& metric) {
     return metric.raw_count * 100;
 }
 ```
+
+For property-style fields, the same pattern applies but the tag is empty and
+the descriptor must be given an explicit logical value type in the contract
+declaration. In that case the core never falls back to raw storage access; it
+expects hooks.
 
 ## Field Policies
 

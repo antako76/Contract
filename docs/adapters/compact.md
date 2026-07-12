@@ -657,7 +657,7 @@ static read_status read(Reader& in, const Field& field, T& value);
 ```
 
 The field-aware path is where a codec may use the real `CONTRACT` field id,
-name, and attributes. The value-only path is for positional payloads.
+name, kind, and attributes. The value-only path is for positional payloads.
 `writer` is intended for window-backed outputs; the default output type is
 `contract::io::window_output`.
 

@@ -1060,36 +1060,51 @@ struct MetricsHeader {
     std::uint64_t path_hash;
 };
 
+namespace metrics_header_fields {
+using service = decltype(contract::make_member_field<
+    MetricsHeader, 1, &MetricsHeader::service>("service", {}));
+using tenant = decltype(contract::make_property_field<
+    MetricsHeader, 2, std::string_view>("tenant", {}));
+} // namespace metrics_header_fields
+
 constexpr auto contract_definition(contract::tag<MetricsHeader>) {
     using Self = MetricsHeader;
 
     return contract::make_contract<Self>(
         "MetricsHeader",
-        contract::attrs(),
-
-        contract::field<&Self::service, contract_field::service, 1>(
+        contract::make_member_field<Self, 1, &Self::service>(
             "service",
-            contract::schema::type(contract::schema::string),
-            contract::check::max_length(32)
+            contract::make_field_attributes(
+                contract::schema::type(contract::schema::string),
+                contract::check::max_length(32))
         ),
-        contract::field<&Self::tenant, contract_field::tenant, 2>(
+        contract::make_property_field<Self, 2, std::string_view>(
             "tenant",
-            contract::schema::type(contract::schema::string),
-            contract::check::max_length(64),
-            contract::security::sensitive(),
-            contract::security::no_log()
+            contract::make_field_attributes(
+                contract::schema::type(contract::schema::string),
+                contract::check::max_length(64),
+                contract::security::sensitive(),
+                contract::security::no_log())
         )
     );
 }
 ```
+
+`service` is a physical field: `make_member_field` takes the member pointer
+directly, so no hand-written access code is needed at all.
+
+`tenant` is a property field: it has no physical member, so the logical value
+type is taken from the `make_property_field(..., std::string_view)` template
+argument. Any actual value access must then come from `contract_get` /
+`contract_set` hooks, keyed by the `metrics_header_fields::tenant` alias.
 
 External `contract_get` / `contract_set` hooks are adapter-independent logical access hooks.
 
 They are not serialization hooks.
 
 ```cpp
-std::string_view contract_get(contract::tag<contract_field::tenant>, const Header& h);
-void contract_set(contract::tag<contract_field::tenant>, Header& h, std::string_view value);
+std::string_view contract_get(const metrics_header_fields::tenant&, const MetricsHeader& h);
+void contract_set(const metrics_header_fields::tenant&, MetricsHeader& h, std::string_view value);
 ```
 
 Adapter-specific hooks are allowed only as escape hatches.
@@ -1097,7 +1112,7 @@ Adapter-specific hooks are allowed only as escape hatches.
 ```cpp
 template<class Writer>
 void contract_wire_write(
-    contract::tag<contract_field::payload>,
+    const PayloadEvent::contract_fields::payload&,
     Writer& out,
     const PayloadEvent& obj
 );

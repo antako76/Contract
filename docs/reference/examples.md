@@ -42,6 +42,35 @@ out << config;
 log encoder, or a wire codec by hand — each adapter reuses the same
 `CONTRACT(...)` declaration.
 
+## Core Model
+
+`CONTRACT(...)` does not just name fields. It also generates the nested
+`contract_fields` descriptor names and the field descriptors that core traversal reads.
+
+```cpp
+auto def = contract::contract_of<PaymentConfig>();
+auto fields = contract::flattened_fields_of<PaymentConfig>();
+
+static_assert(def.type_name == "PaymentConfig");
+static_assert(std::tuple_size_v<decltype(fields)> == 4);
+
+constexpr auto service = contract::field_at<0, PaymentConfig>();
+static_assert(service.name == "service");
+static_assert(service.id == 1);
+static_assert(service.kind == contract::field_kind::member);
+
+constexpr auto tags = contract::field_at<3, PaymentConfig>();
+static_assert(tags.name == "tags");
+static_assert(tags.kind == contract::field_kind::member);
+```
+
+This is the shape every adapter sees:
+
+- `contract_of<T>()` returns the type-level definition;
+- `flattened_fields_of<T>()` returns the adapter-facing field tuple;
+- `field_at<Index, T>()` gives one descriptor with name, id, attributes, and
+  access kind.
+
 ## Console
 
 The console-first facade is the short human-readable entry point:

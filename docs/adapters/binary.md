@@ -106,6 +106,7 @@ Current guarantees:
 - no dynamic field registry;
 - no per-field virtual dispatch;
 - descriptor traversal is compile-time typed;
+- field kind is honored at the descriptor boundary;
 - direct physical fields are loaded through `ref(obj)` when the descriptor
   capability and the object category make it safe;
 - properties and custom setters always go through `set(obj, value)`;

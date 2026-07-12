@@ -9,6 +9,7 @@ layer, and which headers are intentionally opt-in.
 - [`include/contract/contract.hpp`](../include/contract/contract.hpp)
   - core CONTRACT model
   - DSL macros
+  - generated `contract_fields` descriptor names
   - field graph, traversal helpers, adapter-facing metadata
 - [`include/contract/attribute.hpp`](../include/contract/attribute.hpp)
   - attribute policy entry point

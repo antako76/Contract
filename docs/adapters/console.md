@@ -62,7 +62,7 @@ It should show:
 - field name;
 - value type;
 - storage type when it differs from the value type;
-- member, property, base, and accessor origin;
+- member, reference, property, and base origin;
 - BASE offset and effective field id;
 - nested contract object shape;
 - container size;
