@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler: [g++, clang++]
+        compiler: [g++, clang++-19]
         build_type: [Debug]
 
     env:
@@ -21,6 +21,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Install clang-19
+        if: startsWith(matrix.compiler, 'clang')
+        run: sudo apt-get update && sudo apt-get install -y clang-19
 
       - name: Configure
         run: >
