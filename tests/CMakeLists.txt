@@ -27,3 +27,4 @@ endfunction()
 
 add_subdirectory(unit)
 add_subdirectory(compile_fail)
+add_subdirectory(package)
