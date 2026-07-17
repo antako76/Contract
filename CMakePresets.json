@@ -3,13 +3,13 @@
   "configurePresets": [
     {
       "name": "default",
-      "displayName": "Default (Clang 22)",
-      "description": "Configure CONTRACT with Clang 22.",
+      "displayName": "Default (Clang 19)",
+      "description": "Configure CONTRACT with Clang 19.",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build-clang22",
+      "binaryDir": "${sourceDir}/build-clang19",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_CXX_COMPILER": "clang++-22",
+        "CMAKE_CXX_COMPILER": "clang++-19",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
       }
     },
