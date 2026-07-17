@@ -469,7 +469,7 @@ public:
     parse_error& error(std::source_location location = std::source_location::current()) {
         if (!error_) {
             const auto location_info = current_error_location();
-            error_.emplace(location, location_info.line, location_info.snippet);
+            error_.emplace(location_info.line, location_info.snippet, location);
         }
         return *error_;
     }
