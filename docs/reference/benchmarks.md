@@ -8,8 +8,8 @@ rely on.
 
 ## Benchmark Suite
 
-Four benchmark binaries live under `benchmarks/`, all built by default
-(`-DCONTRACT_BUILD_BENCHMARKS=ON`, the CMake default) except where noted:
+Four benchmark binaries live under `benchmarks/`. The benchmark suite is
+opt-in through `-DCONTRACT_BUILD_BENCHMARKS=ON` except where noted:
 
 ```text
 contract_binary_adapter_benchmark
@@ -40,8 +40,9 @@ and `--color` are supported by the binary adapter benchmark, see
 [Quantile Display](#quantile-display) below):
 
 ```sh
-cmake --build build-clang22 --target contract_binary_adapter_benchmark
-./build-clang22/benchmarks/contract_binary_adapter_benchmark --iterations 50000
+cmake --preset default -DCONTRACT_BUILD_BENCHMARKS=ON
+cmake --build build-clang19 --target contract_binary_adapter_benchmark
+./build-clang19/benchmarks/contract_binary_adapter_benchmark --iterations 50000
 ```
 
 ## How Many Iterations You Actually Need

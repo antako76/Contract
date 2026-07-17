@@ -6,7 +6,7 @@ structured logging, YAML configuration, and binary/protobuf/compact transport
 to files or the network — all from the same declaration, without runtime
 reflection or per-format field mapping.
 
-`contract` is project by Ilya Korolev (Antako). 
+`contract` is project by Ilya Korolev (Antako).
 
 This repository contains the active `CONTRACT` implementation and the
 documentation that explains how the layer is split.

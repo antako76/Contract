@@ -15,8 +15,13 @@ if(CMAKE_CXX_STANDARD GREATER_EQUAL 20)
     set(CONTRACT_ENABLE_SPAN 1)
 endif()
 
-option(CONTRACT_BUILD_EXAMPLES "Build CONTRACT examples" ON)
-option(CONTRACT_BUILD_TESTS "Build CONTRACT tests" ON)
+set(_contract_build_default OFF)
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+    set(_contract_build_default ON)
+endif()
+
+option(CONTRACT_BUILD_EXAMPLES "Build CONTRACT examples" ${_contract_build_default})
+option(CONTRACT_BUILD_TESTS "Build CONTRACT tests" ${_contract_build_default})
 option(CONTRACT_BUILD_BENCHMARKS "Build CONTRACT benchmarks" OFF)
 
 include(GNUInstallDirs)
