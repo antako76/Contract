@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(contract
-    VERSION 0.1.0
+    VERSION 0.3.0
     DESCRIPTION "Compile-time C++ data contract layer"
     LANGUAGES CXX
 )
@@ -19,13 +19,18 @@ option(CONTRACT_BUILD_EXAMPLES "Build CONTRACT examples" ON)
 option(CONTRACT_BUILD_TESTS "Build CONTRACT tests" ON)
 option(CONTRACT_BUILD_BENCHMARKS "Build CONTRACT benchmarks" OFF)
 
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+set(CONTRACT_PROJECT_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+
 add_library(contract INTERFACE)
 add_library(contract::contract ALIAS contract)
 
 target_include_directories(contract
     INTERFACE
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 target_compile_features(contract INTERFACE cxx_std_20)
@@ -45,3 +50,44 @@ endif()
 if(CONTRACT_BUILD_BENCHMARKS)
     add_subdirectory(benchmarks)
 endif()
+
+install(
+    TARGETS contract
+    EXPORT contractTargets
+)
+
+install(
+    DIRECTORY include/contract
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(
+    EXPORT contractTargets
+    FILE contractTargets.cmake
+    NAMESPACE contract::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/contract
+)
+
+configure_package_config_file(
+    cmake/contractConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/contractConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/contract
+)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/contractConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMinorVersion
+)
+
+install(
+    FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/contractConfig.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/contractConfigVersion.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/contract
+)
+
+install(
+    FILES LICENSE
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/licenses/contract
+)

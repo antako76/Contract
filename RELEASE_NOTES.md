@@ -2,6 +2,42 @@
 
 This file tracks user-visible changes for CONTRACT releases.
 
+## v0.3.0
+
+### Breaking Changes
+
+- The direct `yaml::parse_error` convenience constructor now takes
+  `(line, snippet, location)` instead of `(location, line, snippet)`. There are
+  no in-tree call sites; this only affects external code that constructs the
+  error type directly.
+
+### Added
+
+- CONTRACT can now be installed with `cmake --install` and consumed from an
+  independent CMake project with
+  `find_package(contract 0.3 CONFIG REQUIRED)` and the existing
+  `contract::contract` target.
+- The install tree includes the public headers, CMake package and version
+  files, exported targets, and the Apache-2.0 license.
+- A package integration test now installs CONTRACT into an isolated prefix,
+  configures an external consumer through `find_package`, builds it, and runs
+  it.
+
+### CI
+
+- GitHub Actions now uses a pinned Ubuntu 24.04 runner and tests both Debug and
+  Release builds with GCC 13 and Clang 19.
+- CI jobs now have read-only repository permissions, a timeout, and concurrency
+  cancellation for obsolete runs from the same ref.
+- The default developer preset now uses Clang 19, matching the supported Clang
+  version in CI.
+
+### Docs
+
+- Added installation and `find_package` instructions to the root README.
+- Documented narrow includes as the default integration path; family
+  `all.hpp` headers remain conveniences for tests and examples.
+
 ## v0.2.0
 
 ### Breaking Changes

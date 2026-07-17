@@ -157,6 +157,34 @@ yourself.
 - [`RELEASE_POLICY.md`](RELEASE_POLICY.md) for branching, versioning, and release rules
 - [`RELEASE_NOTES.md`](RELEASE_NOTES.md) for user-visible release notes
 
+## CMake Integration
+
+When CONTRACT is part of the same source tree, add it directly and link the
+interface target:
+
+```cmake
+add_subdirectory(path/to/contract)
+target_link_libraries(your_target PRIVATE contract::contract)
+```
+
+To install CONTRACT and consume it as a package:
+
+```sh
+cmake -S . -B build -DCONTRACT_BUILD_EXAMPLES=OFF -DCONTRACT_BUILD_TESTS=OFF
+cmake --install build --prefix /your/install/prefix
+```
+
+```cmake
+find_package(contract 0.3 CONFIG REQUIRED)
+target_link_libraries(your_target PRIVATE contract::contract)
+```
+
+Include the narrowest header that provides the API you use. Family `all.hpp`
+headers are conveniences for examples and tests; they are not the default
+integration path because they increase the amount of code each translation
+unit must parse. See [`docs/include_map.md`](docs/include_map.md) for the public
+include tree.
+
 ## Key Headers
 
 - [`include/contract/contract.hpp`](include/contract/contract.hpp) for the core contract model and DSL macros.
