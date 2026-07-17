@@ -175,7 +175,7 @@ cmake --install build --prefix /your/install/prefix
 ```
 
 ```cmake
-find_package(contract 0.2 CONFIG REQUIRED)
+find_package(contract 0.3 CONFIG REQUIRED)
 target_link_libraries(your_target PRIVATE contract::contract)
 ```
 

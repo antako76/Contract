@@ -356,9 +356,9 @@ public:
     using contract::detail::adapter_error_base<parse_error, parse_error_code, parse_stage, parse_status>::adapter_error_base;
 
     explicit parse_error(
-        std::source_location location = std::source_location::current(),
         std::size_t line = 0,
-        std::string_view snippet = {})
+        std::string_view snippet = {},
+        std::source_location location = std::source_location::current())
         : contract::detail::adapter_error_base<parse_error, parse_error_code, parse_stage, parse_status>(location) {
         if (line != 0) {
             line_ = line;
@@ -879,6 +879,7 @@ struct codec {
     static parse_status read(Reader&, T&) {
         static_assert(contract::adapters::base::always_false_v<T>,
             "yaml::codec<T> is not defined for this contract value type");
+        return parse_status::error;
     }
 };
 

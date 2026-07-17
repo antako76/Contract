@@ -757,6 +757,7 @@ private:
             } else {
                 static_assert(contract::adapters::base::always_false_v<value_type>,
                     "protobuf fields require a field-aware codec overload");
+                return write_status::error;
             }
         }
     }
