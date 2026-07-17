@@ -4,16 +4,29 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-test:
-    name: ${{ matrix.compiler }} / ${{ matrix.build_type }}
-    runs-on: ubuntu-latest
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
 
     strategy:
       fail-fast: false
       matrix:
-        compiler: [g++, clang++-19]
-        build_type: [Debug]
+        include:
+          - name: GCC 13
+            compiler: g++-13
+            package: g++-13
+          - name: Clang 19
+            compiler: clang++-19
+            package: clang-19
 
     env:
       CMAKE_BUILD_PARALLEL_LEVEL: 2
@@ -22,23 +35,39 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install clang-19
-        if: startsWith(matrix.compiler, 'clang')
-        run: sudo apt-get update && sudo apt-get install -y clang-19
+      - name: Install compiler
+        run: sudo apt-get update && sudo apt-get install -y ${{ matrix.package }}
 
-      - name: Configure
+      - name: Configure Debug
         run: >
           cmake
           -S .
-          -B build
+          -B build-debug
           -DCMAKE_CXX_COMPILER=${{ matrix.compiler }}
           -DCONTRACT_BUILD_BENCHMARKS=OFF
           -DCONTRACT_BUILD_EXAMPLES=ON
           -DCONTRACT_BUILD_TESTS=ON
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_BUILD_TYPE=Debug
 
-      - name: Build
-        run: cmake --build build
+      - name: Build Debug
+        run: cmake --build build-debug
 
-      - name: Test
-        run: ctest --test-dir build --output-on-failure
+      - name: Test Debug
+        run: ctest --test-dir build-debug --build-config Debug --output-on-failure
+
+      - name: Configure Release
+        run: >
+          cmake
+          -S .
+          -B build-release
+          -DCMAKE_CXX_COMPILER=${{ matrix.compiler }}
+          -DCONTRACT_BUILD_BENCHMARKS=OFF
+          -DCONTRACT_BUILD_EXAMPLES=ON
+          -DCONTRACT_BUILD_TESTS=ON
+          -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Release
+        run: cmake --build build-release
+
+      - name: Test Release
+        run: ctest --test-dir build-release --build-config Release --output-on-failure
