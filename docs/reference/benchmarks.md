@@ -190,17 +190,29 @@ int25[25 fields]     78   53.2 /  49.5  1.08     84.6 /  71.9  1.18
 str25[25 fields]    272  122.7 / 194.9  0.63    153.1 / 452.6  0.34
 ```
 
-`int25` and `vector[100]` remain the two scenarios with a clear unpack
-slowdown (x1.18, x1.13) - both many-cheap-element shapes with no strings to
+A single ratio number from one aggregated table isn't enough to call a
+scenario "faster" or "slower" - the same 5 independent invocations that
+produced the medians above were checked row-by-row for whether the ratio
+stayed on the same side of 1.0 in *every* one of the 5, not just in the
+pooled median. That gives three honest buckets instead of one noisy
+threshold at 1.0:
+
+- **CONTRACT confirmed faster** (ratio `< 1` in all 5 runs): 9 of 14 pack
+  rows, 11 of 14 unpack rows.
+- **protobuf confirmed faster** (ratio `> 1` in all 5 runs): pack -
+  `vector[100]`, `bytes[32]`, `int25`; unpack - `vector[100]`, `int25`.
+  `bytes[32]`'s pack ratio (x1.20) looks close to parity in the table above.
+  it isn't - all 5 runs measured it above 1.0 (range 1.12-1.24), a small but
+  consistent and repeatable slowdown, not noise.
+- **Genuinely undecided** (the ratio crosses 1.0 across the 5 runs, sign
+  flips run to run): pack - `vector[25]`, `all_numbers[8]`; unpack -
+  `numeric`. These are the only three rows where the table's ratio being
+  close to 1.0 actually means "can't tell" rather than "small real effect."
+
+`int25` and `vector[100]` are the two scenarios with both a confirmed pack
+*and* unpack slowdown - both many-cheap-element shapes with no strings to
 mask dispatch/decode cost, and neither has a `std::string` field for the
-reset fix above to affect. `numeric`'s x1.03 is close enough to parity to be
-noise (see
-[How Many Iterations You Actually Need](#how-many-iterations-you-actually-need)).
-On pack, `bytes[32]`, `all_numbers[8]`, and `int25` now sit at or just above
-parity (x1.20, x1.02, x1.08) where the previous snapshot had them at or
-below it - all three were already close to 1.0 before, so this is exactly
-the borderline-ratio noise the note above describes, not a regression tied
-to any code change this session. See
+reset fix above to affect. See
 [`adapters/protobuf.md#performance`](../adapters/protobuf.md#performance)
 for the full explanation and what was tried against `int25` specifically.
 
