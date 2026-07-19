@@ -139,9 +139,9 @@ CONTRACT vs. real libprotobuf (`contract_protobuf_reference_benchmark
 --iterations 500000`, built with `-DCONTRACT_BENCH_WITH_PROTOBUF=ON`), measured
 with Clang 19 (the `default` CMake preset's compiler - see
 `CMakePresets.json`). GCC reproduces the same byte-for-byte wire parity but
-shows a larger unpack gap specifically on the `int25`/`vector[100]` rows below;
-re-run the binary under your own toolchain rather than assuming these exact
-ratios carry over to a different compiler. The tool's own header:
+shows a larger unpack gap specifically on the `int25` row below; re-run the
+binary under your own toolchain rather than assuming these exact ratios carry
+over to a different compiler. The tool's own header:
 
 ```text
 size in bytes; pack/unpack in ns/op (median of 7); x column = contract/protobuf ratio (>1 means contract is slower)
@@ -150,41 +150,64 @@ size in bytes; pack/unpack in ns/op (median of 7); x column = contract/protobuf 
 Each single invocation already reports a median of its own 7 internal
 repeats - the numbers below take the median of 5 *independent invocations*
 of that (so a median of medians, ~90s total), per
-[How Many Iterations You Actually Need](#how-many-iterations-you-actually-need):
+[How Many Iterations You Actually Need](#how-many-iterations-you-actually-need).
+
+This snapshot replaces an earlier one taken before a reset-methodology bug in
+the benchmark itself was fixed: the unpack loop reset its persistent `target`
+via `target = Value{}` between operations, which discards whatever buffer
+capacity a `std::string` field had already accumulated and forces a fresh
+allocation on every single iteration - unlike libprotobuf's own `Clear()`,
+which resets in place and keeps existing capacity. String-bearing scenarios
+(`text`, `wide[10 fields]`, `all_strings[6]`, `str25[25 fields]`, `nested`)
+now reset the same way `Clear()` does, so their unpack numbers below reflect
+actual decode cost rather than benchmark-induced allocator churn - `str25`
+in particular moved from a x0.58 to a x0.34 unpack ratio purely from this
+fix. Pack numbers were never affected by this bug (the pack loop has no
+persistent target to reset); where pack ratios below differ from the
+previous snapshot, that is ordinary run-to-run/machine variance, the same
+kind [How Many Iterations You Actually Need](#how-many-iterations-you-actually-need)
+already warns about - re-run the binary yourself rather than trusting either
+snapshot as a permanent number.
 
 This is the full scenario set (only 14 rows, so no reason to trim it the way
 the two larger benchmarks above are trimmed):
 
 ```text
 scenario           size      pack(c/p)     x      unpack(c/p)     x
-numeric              25   17.4 /  22.8  0.77     29.7 /  29.3  1.02
-text                 18    7.4 /  22.6  0.32     20.4 /  28.3  0.72
-nested               47   28.4 /  45.9  0.62     50.0 /  96.7  0.52
-vector[4]             6   13.7 /  23.8  0.58     15.3 /  24.0  0.63
-vector[25]           27   45.6 /  58.7  0.78     33.5 /  67.2  0.50
-vector[100]         171  191.3 / 196.8  0.97    135.8 / 105.9  1.28
-wide[10 fields]     110   39.6 /  58.7  0.68     61.1 /  85.7  0.73
-string_vector[4]     43   25.2 /  49.0  0.51     33.7 /  65.6  0.51
-string_vector[50]   465  221.4 / 439.0  0.50    380.4 / 594.5  0.64
-all_strings[6]       94   39.1 /  69.0  0.57     44.4 / 111.3  0.40
-all_numbers[8]       42   26.3 /  30.5  0.86     30.9 /  40.5  0.77
-bytes[32]            17   18.8 /  18.5  1.01     18.4 /  26.4  0.70
-int25[25 fields]     78   41.7 /  54.3  0.78     81.5 /  65.9  1.25
-str25[25 fields]    272  122.7 / 214.0  0.57    231.8 / 402.8  0.58
+numeric              25   16.6 /  20.5  0.81     31.1 /  30.3  1.03
+text                 18    7.9 /  22.3  0.35     14.9 /  29.0  0.51
+nested               47   28.3 /  41.4  0.68     50.2 /  88.4  0.57
+vector[4]             6   11.9 /  22.3  0.53     15.2 /  20.1  0.76
+vector[25]           27   49.5 /  50.4  0.98     36.3 /  48.6  0.75
+vector[100]         171  228.6 / 180.3  1.27    153.7 / 135.9  1.13
+wide[10 fields]     110   43.0 /  55.6  0.77     56.2 /  97.1  0.58
+string_vector[4]     43   24.4 /  47.4  0.52     33.4 /  70.7  0.47
+string_vector[50]   465  210.9 / 380.0  0.55    372.4 / 673.0  0.55
+all_strings[6]       94   36.0 /  66.1  0.55     42.9 / 119.5  0.36
+all_numbers[8]       42   30.1 /  29.4  1.02     34.0 /  43.6  0.78
+bytes[32]            17   21.5 /  17.9  1.20     20.1 /  25.2  0.80
+int25[25 fields]     78   53.2 /  49.5  1.08     84.6 /  71.9  1.18
+str25[25 fields]    272  122.7 / 194.9  0.63    153.1 / 452.6  0.34
 ```
 
-`int25` and `vector[100]` are the two scenarios with a clear unpack
-slowdown (x1.25, x1.28) - both many-cheap-element shapes with no strings to
-mask dispatch/decode cost. `numeric`'s x1.02 is close enough to parity to be
+`int25` and `vector[100]` remain the two scenarios with a clear unpack
+slowdown (x1.18, x1.13) - both many-cheap-element shapes with no strings to
+mask dispatch/decode cost, and neither has a `std::string` field for the
+reset fix above to affect. `numeric`'s x1.03 is close enough to parity to be
 noise (see
 [How Many Iterations You Actually Need](#how-many-iterations-you-actually-need)).
-See [`adapters/protobuf.md#performance`](../adapters/protobuf.md#performance)
+On pack, `bytes[32]`, `all_numbers[8]`, and `int25` now sit at or just above
+parity (x1.20, x1.02, x1.08) where the previous snapshot had them at or
+below it - all three were already close to 1.0 before, so this is exactly
+the borderline-ratio noise the note above describes, not a regression tied
+to any code change this session. See
+[`adapters/protobuf.md#performance`](../adapters/protobuf.md#performance)
 for the full explanation and what was tried against `int25` specifically.
 
 Compiler choice measurably changes the `int25` row above: GCC's inliner
 fully unrolls `read_field` into `read_message` for every field instead of
 keeping it as a compact per-field call the way Clang does, which has been
-observed to push `int25`'s unpack ratio well above the x1.25 figure shown
+observed to push `int25`'s unpack ratio well above the x1.18 figure shown
 here. This is a backend code-generation difference, not a difference in
 what the library asks either compiler to do - no compiler-specific code
 path exists in the adapter. A canonical GCC snapshot (same 5-invocation

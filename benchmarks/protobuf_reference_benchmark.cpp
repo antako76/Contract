@@ -114,13 +114,15 @@ std::vector<NestedMessage> make_nested_messages() {
 }
 
 // Vector-holding message types default to an EMPTY vector, not prefilled
-// sample data. measure_contract's unpack loop resets via `target = Value{};`
-// between ops (protobuf repeated fields append rather than replace), and a
-// non-trivial default member initializer here would silently measure "rebuild
-// N elements" on every reset in addition to the actual parse - exactly the
-// kind of test-shapes-the-measurement trap this session already hit once
-// with std::optional/NOINLINE. Sample data comes from the make_* factories
-// below instead, used only when building the `samples` vector.
+// sample data. measure_contract's unpack loop resets `target` between ops
+// (protobuf repeated fields append rather than replace, and reused strings
+// need their old content cleared - see the reset()/reset_target overloads
+// below), and a non-trivial default member initializer here would silently
+// measure "rebuild N elements" on every reset in addition to the actual
+// parse - exactly the kind of test-shapes-the-measurement trap this session
+// already hit once with std::optional/NOINLINE. Sample data comes from the
+// make_* factories below instead, used only when building the `samples`
+// vector.
 
 struct VectorMessage {
     std::vector<std::uint32_t> values;
@@ -398,13 +400,12 @@ Writer make_contract_writer(unsigned char* data, std::size_t size) {
 }
 
 // CONTRACT protobuf side: same pattern as protobuf_compact_adapter_benchmark.cpp.
-// Reset is a customization point: the default `target = Value{}` discards
-// whatever buffers `target` had allocated (a fresh Value{} is move-assigned
-// over it), unlike libprotobuf's Clear() which keeps existing capacity. For
-// message types with no repeated/container fields this difference doesn't
-// matter (there is nothing to keep capacity of); scenarios with vectors pass
-// a reset that only clears the container in place, to keep the comparison
-// apples-to-apples with Clear()'s capacity-preserving reset.
+// Reset is a customization point: `target = Value{}` would discard whatever
+// buffers `target` had allocated (a fresh Value{} is move-assigned over it),
+// unlike libprotobuf's Clear() which keeps existing capacity. The no-Reset
+// overload below picks reset_target, which calls a type's reset() overload
+// (see above) when one exists and falls back to `target = Value{}` only for
+// types with no heap-owning fields to preserve capacity of.
 template<class Value, class Reset>
 CONTRACT_NOINLINE stat measure_contract(const std::vector<Value>& samples, const std::vector<std::size_t>& order, Reset reset) {
     using Writer = contract::adapters::protobuf::writer<contract::io::window_output>;
@@ -453,7 +454,7 @@ CONTRACT_NOINLINE stat measure_contract(const std::vector<Value>& samples, const
 
 template<class Value>
 CONTRACT_NOINLINE stat measure_contract(const std::vector<Value>& samples, const std::vector<std::size_t>& order) {
-    return measure_contract(samples, order, [](Value& target) { target = Value{}; });
+    return measure_contract(samples, order, [](Value& target) { reset_target(target); });
 }
 
 // Real libprotobuf side: no writer/reader wrapper exists in its API at all,
@@ -633,6 +634,63 @@ contract_bench::Str25Message to_proto(const Str25Message& v) {
     return m;
 }
 
+// --- reset helpers: bring a persistent unpack target back to a clean state
+// the way protobuf's own Clear() does - clearing existing heap-owning
+// fields in place, not tearing the whole value down and rebuilding it via
+// `target = Value{}`. The latter frees whatever capacity `target` already
+// had, forcing a fresh allocation on the very next parse; `container.clear()`
+// keeps that capacity, so repeated same-shaped parses stop allocating after
+// the first couple of iterations - matching the reuse pattern this
+// benchmark's own median_per_op loop actually exercises. ---
+
+void reset(VectorMessage& t) { t.values.clear(); }
+void reset(VectorMessage25& t) { t.values.clear(); }
+void reset(WideVectorMessage& t) { t.values.clear(); }
+void reset(StringVectorMessage& t) { t.values.clear(); }
+void reset(WideStringVectorMessage& t) { t.values.clear(); }
+
+void reset(TextMessage& t) { t.name.clear(); }
+void reset(NestedMessage& t) { reset(t.text); }
+
+void reset(WideRecord& t) {
+    t.name.clear();
+    t.description.clear();
+    t.tag.clear();
+}
+
+void reset(AllStringsMessage& t) {
+    t.first_name.clear();
+    t.last_name.clear();
+    t.email.clear();
+    t.company.clear();
+    t.department.clear();
+    t.notes.clear();
+}
+
+void reset(Str25Message& t) {
+    t.f1.clear(); t.f2.clear(); t.f3.clear(); t.f4.clear(); t.f5.clear();
+    t.f6.clear(); t.f7.clear(); t.f8.clear(); t.f9.clear(); t.f10.clear();
+    t.f11.clear(); t.f12.clear(); t.f13.clear(); t.f14.clear(); t.f15.clear();
+    t.f16.clear(); t.f17.clear(); t.f18.clear(); t.f19.clear(); t.f20.clear();
+    t.f21.clear(); t.f22.clear(); t.f23.clear(); t.f24.clear(); t.f25.clear();
+}
+
+// Types with no heap-owning fields (NumericMessage, AllNumbersMessage,
+// BytesMessage) have no reset() overload above and don't need one -
+// `target = Value{}` is already free for them, so the fallback below is
+// exactly as cheap as a hand-written reset would be.
+template<class Value>
+concept has_reset_overload = requires(Value& v) { reset(v); };
+
+template<class Value>
+void reset_target(Value& target) {
+    if constexpr (has_reset_overload<Value>) {
+        reset(target);
+    } else {
+        target = Value{};
+    }
+}
+
 template<class Value>
 auto to_proto_vector(const std::vector<Value>& values) {
     std::vector<decltype(to_proto(values.front()))> result;
@@ -647,14 +705,6 @@ template<class Value, class ProtoMsg>
 CONTRACT_NOINLINE row benchmark_row(std::string name, const std::vector<Value>& samples, const std::vector<ProtoMsg>& proto_samples) {
     const auto order = benchmark_base::make_order(static_cast<std::size_t>(iterations), samples.size());
     const auto cs = measure_contract(samples, order);
-    const auto ps = measure_proto(proto_samples, order);
-    return {std::move(name), cs, ps};
-}
-
-template<class Value, class ProtoMsg, class Reset>
-CONTRACT_NOINLINE row benchmark_row(std::string name, const std::vector<Value>& samples, const std::vector<ProtoMsg>& proto_samples, Reset reset) {
-    const auto order = benchmark_base::make_order(static_cast<std::size_t>(iterations), samples.size());
-    const auto cs = measure_contract(samples, order, reset);
     const auto ps = measure_proto(proto_samples, order);
     return {std::move(name), cs, ps};
 }
@@ -704,20 +754,17 @@ int main(int argc, char** argv) {
     {
         const auto samples = make_vector_messages();
         const auto proto_samples = to_proto_vector(samples);
-        print_row(benchmark_row("vector[4]", samples, proto_samples,
-            [](VectorMessage& t) { t.values.clear(); }));
+        print_row(benchmark_row("vector[4]", samples, proto_samples));
     }
     {
         const auto samples = make_vector_messages_25();
         const auto proto_samples = to_proto_vector(samples);
-        print_row(benchmark_row("vector[25]", samples, proto_samples,
-            [](VectorMessage25& t) { t.values.clear(); }));
+        print_row(benchmark_row("vector[25]", samples, proto_samples));
     }
     {
         const auto samples = make_wide_vector_messages();
         const auto proto_samples = to_proto_vector(samples);
-        print_row(benchmark_row("vector[100]", samples, proto_samples,
-            [](WideVectorMessage& t) { t.values.clear(); }));
+        print_row(benchmark_row("vector[100]", samples, proto_samples));
     }
     {
         const auto samples = make_wide_records();
@@ -727,14 +774,12 @@ int main(int argc, char** argv) {
     {
         const auto samples = make_string_vector_messages();
         const auto proto_samples = to_proto_vector(samples);
-        print_row(benchmark_row("string_vector[4]", samples, proto_samples,
-            [](StringVectorMessage& t) { t.values.clear(); }));
+        print_row(benchmark_row("string_vector[4]", samples, proto_samples));
     }
     {
         const auto samples = make_wide_string_vector_messages();
         const auto proto_samples = to_proto_vector(samples);
-        print_row(benchmark_row("string_vector[50]", samples, proto_samples,
-            [](WideStringVectorMessage& t) { t.values.clear(); }));
+        print_row(benchmark_row("string_vector[50]", samples, proto_samples));
     }
     {
         const auto samples = make_all_strings_messages();
