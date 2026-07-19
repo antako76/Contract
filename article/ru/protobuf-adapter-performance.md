@@ -378,6 +378,16 @@ fold в диспетчер, реально сворачивающийся в jum
 перевешивает более специализированный, но менее гибкий сгенерированный
 protoc-код — почти везде, кроме пары понятных исключений.
 
+Показательно, что происходит, когда совместимость с чужим форматом вообще не
+нужна: у CONTRACT есть ещё и binary-адаптер — свой собственный wire-формат,
+без оглядки на protobuf. Там, где не нужно подстраиваться под чужие
+проектные решения, contract-слой стоит буквально ноль поверх ручного C++
+кода — ratio держится в районе 1.00 почти на всех типах и путях доступа
+(`docs/reference/benchmarks.md`). А с protobuf всё сложнее именно потому,
+что это уже не наш формат — есть свои ограничения на wire-уровне (тот же
+`int25`/`vector[100]` кейс), которые не убрать, не сломав совместимость.
+Если интересны детали binary-адаптера — пишите, разберём отдельно.
+
 Репозиторий:
 [`include/contract/adapters/protobuf.hpp`](https://github.com/antako76/Contract/blob/main/include/contract/adapters/protobuf.hpp),
 [`docs/adapters/protobuf.md#performance`](https://github.com/antako76/Contract/blob/main/docs/adapters/protobuf.md#performance),
