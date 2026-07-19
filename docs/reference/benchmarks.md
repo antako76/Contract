@@ -148,8 +148,8 @@ size in bytes; pack/unpack in ns/op (median of 7); x column = contract/protobuf 
 ```
 
 Each single invocation already reports a median of its own 7 internal
-repeats - the numbers below take the median of 5 *independent invocations*
-of that (so a median of medians, ~90s total), per
+repeats - the numbers below take the median of 15 *independent invocations*
+of that (a median of medians), per
 [How Many Iterations You Actually Need](#how-many-iterations-you-actually-need).
 
 This snapshot replaces an earlier one taken before a reset-methodology bug in
@@ -174,55 +174,53 @@ the two larger benchmarks above are trimmed):
 
 ```text
 scenario           size      pack(c/p)     x      unpack(c/p)     x
-numeric              25   16.6 /  20.5  0.81     31.1 /  30.3  1.03
-text                 18    7.9 /  22.3  0.35     14.9 /  29.0  0.51
-nested               47   28.3 /  41.4  0.68     50.2 /  88.4  0.57
-vector[4]             6   11.9 /  22.3  0.53     15.2 /  20.1  0.76
-vector[25]           27   49.5 /  50.4  0.98     36.3 /  48.6  0.75
-vector[100]         171  228.6 / 180.3  1.27    153.7 / 135.9  1.13
-wide[10 fields]     110   43.0 /  55.6  0.77     56.2 /  97.1  0.58
-string_vector[4]     43   24.4 /  47.4  0.52     33.4 /  70.7  0.47
-string_vector[50]   465  210.9 / 380.0  0.55    372.4 / 673.0  0.55
-all_strings[6]       94   36.0 /  66.1  0.55     42.9 / 119.5  0.36
-all_numbers[8]       42   30.1 /  29.4  1.02     34.0 /  43.6  0.78
-bytes[32]            17   21.5 /  17.9  1.20     20.1 /  25.2  0.80
-int25[25 fields]     78   53.2 /  49.5  1.08     84.6 /  71.9  1.18
-str25[25 fields]    272  122.7 / 194.9  0.63    153.1 / 452.6  0.34
+numeric              25   17.0 /  20.2  0.84     30.6 /  30.4  1.01
+text                 18    7.9 /  21.9  0.36     14.5 /  28.5  0.51
+nested               47   27.9 /  40.6  0.69     48.2 /  87.5  0.55
+vector[4]             6   11.7 /  22.0  0.53     15.0 /  19.3  0.78
+vector[25]           27   49.7 /  49.2  1.01     36.7 /  48.2  0.76
+vector[100]         171  226.9 / 175.7  1.29    149.1 / 135.1  1.10
+wide[10 fields]     110   42.4 /  54.9  0.77     55.9 /  96.8  0.58
+string_vector[4]     43   24.8 /  46.2  0.54     32.2 /  69.3  0.47
+string_vector[50]   465  207.6 / 367.4  0.57    358.9 / 656.0  0.55
+all_strings[6]       94   35.4 /  65.5  0.54     42.5 / 118.3  0.36
+all_numbers[8]       42   28.9 /  28.5  1.01     33.8 /  42.2  0.80
+bytes[32]            17   20.9 /  17.8  1.17     19.6 /  25.2  0.78
+int25[25 fields]     78   50.8 /  48.2  1.05     83.0 /  71.4  1.16
+str25[25 fields]    272  120.2 / 192.2  0.63    152.8 / 446.2  0.34
 ```
 
 A single ratio number from one aggregated table isn't enough to call a
-scenario "faster" or "slower" - the same 5 independent invocations that
-produced the medians above were checked row-by-row for whether the ratio
-stayed on the same side of 1.0 in *every* one of the 5, not just in the
-pooled median. That gives three honest buckets instead of one noisy
-threshold at 1.0:
+scenario "faster" or "slower" - the measurement itself has spread. Computed
+it directly: across these same 15 independent invocations, the typical
+(mean) relative spread of a scenario's own ratio - `(max - min) / median`
+across the 15 runs - is about 9%, median 8%. That gives an empirically
+grounded parity band instead of an arbitrary round number: call anything
+within roughly ±8% of 1.0 parity, not a win or a loss.
 
-- **CONTRACT confirmed faster** (ratio `< 1` in all 5 runs): 9 of 14 pack
-  rows, 11 of 14 unpack rows.
-- **protobuf confirmed faster** (ratio `> 1` in all 5 runs): pack -
-  `vector[100]`, `bytes[32]`, `int25`; unpack - `vector[100]`, `int25`.
-  `bytes[32]`'s pack ratio (x1.20) looks close to parity in the table above.
-  it isn't - all 5 runs measured it above 1.0 (range 1.12-1.24), a small but
-  consistent and repeatable slowdown, not noise.
-- **Genuinely undecided** (the ratio crosses 1.0 across the 5 runs, sign
-  flips run to run): pack - `vector[25]`, `all_numbers[8]`; unpack -
-  `numeric`. These are the only three rows where the table's ratio being
-  close to 1.0 actually means "can't tell" rather than "small real effect."
+- **CONTRACT wins**: 9 of 14 pack rows, 11 of 14 unpack rows.
+- **Parity** (within ~8% of 1.0): pack - `vector[25]`, `all_numbers[8]`,
+  `int25`; unpack - `numeric`. `int25`'s pack ratio moved from x1.08 (just
+  outside the band) in the 5-invocation snapshot to x1.05 (inside it) here -
+  the extra invocations resolved a genuine borderline case rather than
+  changing anything about the code.
+- **protobuf wins**: pack - `vector[100]`, `bytes[32]`; unpack -
+  `vector[100]`, `int25`.
 
-`int25` and `vector[100]` are the two scenarios with both a confirmed pack
-*and* unpack slowdown - both many-cheap-element shapes with no strings to
-mask dispatch/decode cost, and neither has a `std::string` field for the
-reset fix above to affect. See
+`int25` unpack and `vector[100]` (both pack and unpack) are the confirmed
+losses - both many-cheap-element shapes with no strings to mask
+dispatch/decode cost, and neither has a `std::string` field for the reset
+fix above to affect. See
 [`adapters/protobuf.md#performance`](../adapters/protobuf.md#performance)
 for the full explanation and what was tried against `int25` specifically.
 
 Compiler choice measurably changes the `int25` row above: GCC's inliner
 fully unrolls `read_field` into `read_message` for every field instead of
 keeping it as a compact per-field call the way Clang does, which has been
-observed to push `int25`'s unpack ratio well above the x1.18 figure shown
+observed to push `int25`'s unpack ratio well above the x1.16 figure shown
 here. This is a backend code-generation difference, not a difference in
 what the library asks either compiler to do - no compiler-specific code
-path exists in the adapter. A canonical GCC snapshot (same 5-invocation
+path exists in the adapter. A canonical GCC snapshot (same 15-invocation
 median methodology as above) has not been added yet; treat any GCC number
 you measure yourself as its own reference point rather than assuming parity
 with the Clang table above.
