@@ -136,8 +136,12 @@ the single-field toy scenarios above and below it - see it and its neighbors
 for the more representative numbers.
 
 CONTRACT vs. real libprotobuf (`contract_protobuf_reference_benchmark
---iterations 500000`, built with `-DCONTRACT_BENCH_WITH_PROTOBUF=ON`). The
-tool's own header:
+--iterations 500000`, built with `-DCONTRACT_BENCH_WITH_PROTOBUF=ON`), measured
+with Clang 19 (the `default` CMake preset's compiler - see
+`CMakePresets.json`). GCC reproduces the same byte-for-byte wire parity but
+shows a larger unpack gap specifically on the `int25`/`vector[100]` rows below;
+re-run the binary under your own toolchain rather than assuming these exact
+ratios carry over to a different compiler. The tool's own header:
 
 ```text
 size in bytes; pack/unpack in ns/op (median of 7); x column = contract/protobuf ratio (>1 means contract is slower)
@@ -176,6 +180,17 @@ noise (see
 [How Many Iterations You Actually Need](#how-many-iterations-you-actually-need)).
 See [`adapters/protobuf.md#performance`](../adapters/protobuf.md#performance)
 for the full explanation and what was tried against `int25` specifically.
+
+Compiler choice measurably changes the `int25` row above: GCC's inliner
+fully unrolls `read_field` into `read_message` for every field instead of
+keeping it as a compact per-field call the way Clang does, which has been
+observed to push `int25`'s unpack ratio well above the x1.25 figure shown
+here. This is a backend code-generation difference, not a difference in
+what the library asks either compiler to do - no compiler-specific code
+path exists in the adapter. A canonical GCC snapshot (same 5-invocation
+median methodology as above) has not been added yet; treat any GCC number
+you measure yourself as its own reference point rather than assuming parity
+with the Clang table above.
 
 ## Core Principle
 

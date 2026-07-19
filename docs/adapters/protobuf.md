@@ -224,7 +224,11 @@ well-bounded message shapes, but it is a poor fit when the caller wants to:
 Measured against real libprotobuf (3.21.12) with an optional benchmark
 (`benchmarks/protobuf_reference_benchmark.cpp`, gated behind
 `CONTRACT_BENCH_WITH_PROTOBUF`, off by default so the core library and tests
-carry no protobuf dependency).
+carry no protobuf dependency), built with Clang 19 (the `default` CMake
+preset). GCC reproduces the same wire-format parity but shows a larger
+`int25` unpack gap than Clang - see the compiler note in
+[`reference/benchmarks.md`](../reference/benchmarks.md#reference-result-snapshot)
+before treating either compiler's numbers as representative of the other.
 
 See [`reference/benchmarks.md`](../reference/benchmarks.md#reference-result-snapshot)
 for the current numbers (that page is the canonical source of measured
@@ -243,6 +247,34 @@ mirroring libprotobuf's own single-byte fast path) were tried and both
 measured worse on this codebase's actual value distributions - see the
 benchmark's git history for the disassembly-backed reasoning. Nested
 messages and string-heavy messages show no such gap.
+
+Where the adapter wins, it wins for four concrete reasons rather than one:
+
+- **Direct window writes, no scratch buffer.** `writer::write_varint_payload`
+  writes varint bytes straight into the caller-owned
+  `contract::io::window_output` via `prepare`/`commit`
+  (`include/contract/io/byte_window.hpp`), instead of building the value in a
+  stack buffer and `memcpy`-ing it out - a runtime-sized `memcpy` also
+  defeats inlining, which the window path avoids entirely.
+- **No upfront whole-message size pass for the value being serialized.**
+  `write_message_by_index` writes fields directly as it walks the contract;
+  there is no separate "measure the whole message, then serialize" pass for
+  the value at the call site.
+- **A dedicated sizer for the one place a size genuinely has to be known
+  ahead of the bytes.** A length-delimited nested message still needs its
+  byte length before its length prefix can be written. `measure_encoded_size`
+  reuses the exact same `codec<T>::write` path as the real write, through a
+  `counting_output` that only accumulates a position counter and skips
+  varint byte construction entirely - so sizing a nested message costs a
+  counting pass over the same code, not a scratch allocation or a second
+  real serialization.
+- **A fused-fold field dispatch instead of a per-field linear rescan.**
+  Reading a message previously re-scanned the field list from index 0 for
+  every wire field (quadratic in field count for ascending wire order);
+  `dispatch_field_by_id` (`include/contract/visit.hpp`) finds the matching
+  declared field and invokes the caller's handler in one fold expression, in
+  a form the compiler can fold into a dense jump table the same way a
+  literal `switch` would.
 
 Run it yourself:
 
