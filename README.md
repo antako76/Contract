@@ -1,5 +1,7 @@
 # CONTRACT
 
+**One contract. Every adapter. Zero mapping.**
+
 `CONTRACT` is a compile-time contract layer for native C++ structs.
 Put one schema next to the type, then reuse it for readable debug output,
 structured logging, YAML configuration, and binary/protobuf/compact transport
