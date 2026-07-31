@@ -250,7 +250,7 @@ struct payload_field {
 
 | Адаптер | Запись | Чтение | Комментарий |
 |---|---|---|---|
-| protobuf | ✓ | ✓ | полный: wire-совместим с настоящим protobuf, обгоняет libprotobuf в 20/28 замеров ([отдельная статья](protobuf-adapter-performance.md)) |
+| protobuf | ✓ | ✓ | полный: wire-совместим с настоящим protobuf, обгоняет libprotobuf в 20/28 замеров ([отдельная статья](https://habr.com/ru/articles/1064148/)) |
 | binary | ✓ | ✓ | полный: нативная раскладка без wire-оверхеда, самый быстрый вариант - но не кросс-платформенный формат по умолчанию |
 | compact | ✓ | ✓ | полный: свой компактный wire-формат, единственный, кто сегодня реально пропускает незнакомые поля при чтении |
 | JSON | ✓ | - | только запись, зато с security-режимами (redact/omit) - на нем построен structured logging |
@@ -339,7 +339,7 @@ log.info("payment_sensitive", "Captured sensitive payment metadata",
 про удобство, но это не покупается ценой производительности: protobuf-адаптер
 CONTRACT сравнивали с настоящим libprotobuf на 14 сценариях. CONTRACT
 оказался быстрее в 20 замерах из 28. Подробности, методология и два честных
-исключения - в [отдельной статье про protobuf-адаптер](protobuf-adapter-performance.md).
+исключения - в [отдельной статье про protobuf-адаптер](https://habr.com/ru/articles/1064148/).
 
 ## Чего CONTRACT не делает
 
