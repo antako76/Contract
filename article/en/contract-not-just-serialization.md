@@ -1,3 +1,4 @@
+![One contract, any format, zero mapping](../img/1a908ef2-6893-4201-8683-c9ea10d3ff69.png)
 # CONTRACT: One Schema Instead of N×M Serializers
 
 **One contract. Any format. Zero mapping.**

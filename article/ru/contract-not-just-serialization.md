@@ -1,3 +1,4 @@
+![One contract, any format, zero mapping](../img/1a908ef2-6893-4201-8683-c9ea10d3ff69.png)
 # CONTRACT: одна схема вместо N×M сериализаторов
 
 **One contract. Any format. Zero mapping.**
