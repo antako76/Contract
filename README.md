@@ -1,3 +1,4 @@
+![One contract, any format, zero mapping](article/img/1a908ef2-6893-4201-8683-c9ea10d3ff69.png)
 # CONTRACT
 
 **One contract. Any format. Zero mapping.**
@@ -5,7 +6,7 @@
 `CONTRACT` is a compile-time contract layer for native C++ structs.
 Put one schema next to the type, then reuse it for readable debug output,
 structured logging, YAML configuration, and binary/protobuf/compact transport
-to files or the network — all from the same declaration, without runtime
+to files or the network - all from the same declaration, without runtime
 reflection or per-format field mapping.
 
 `contract` is project by Ilya Korolev (Antako).
