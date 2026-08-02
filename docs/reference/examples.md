@@ -39,7 +39,7 @@ out << config;
 ```
 
 `PaymentConfig` is declared once. Nothing here writes a YAML parser, a JSON
-log encoder, or a wire codec by hand — each adapter reuses the same
+log encoder, or a wire codec by hand - each adapter reuses the same
 `CONTRACT(...)` declaration.
 
 ## Core Model

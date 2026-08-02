@@ -49,9 +49,9 @@ If it does not, stay on this page and read the definitions below first.
 
 Related documents:
 
-- `adapter_scopes.md` — adapter visibility, rules, and modes.
-- `adapters.md` — guide for adapter authors.
-- `security.md` — security attribute vocabulary and behavior.
+- `adapter_scopes.md` - adapter visibility, rules, and modes.
+- `adapters.md` - guide for adapter authors.
+- `security.md` - security attribute vocabulary and behavior.
 
 ---
 
@@ -148,7 +148,7 @@ contract::security::*
 contract::doc::*
 ```
 
-Adapter projection vocabularies (planned — not yet implemented; see
+Adapter projection vocabularies (planned - not yet implemented; see
 [Design Vision](vision.md#adapter-projection-vocabularies)):
 
 ```cpp
@@ -494,7 +494,7 @@ CONTRACT(Header,
 
 The `ATTRS(...)` mechanism and the `schema::reserved*` attributes are
 implemented and stored on the contract. Adapter *consumption* of them is
-planned but not yet implemented — the interpretations below are the intended
+planned but not yet implemented - the interpretations below are the intended
 direction (see [Design Vision](vision.md)), not current behavior:
 
 ```text
@@ -977,7 +977,7 @@ unsafe raw display/storage/transmission requires explicit unsafe mode and must b
 
 ## 19. Adapter Projection Vocabularies
 
-> **Status: planned — not yet implemented.** The design detail lives in [Design Vision](vision.md#adapter-projection-vocabularies); it is not part of current behavior.
+> **Status: planned - not yet implemented.** The design detail lives in [Design Vision](vision.md#adapter-projection-vocabularies); it is not part of current behavior.
 
 ## 20. Inline Attributes vs Overlays
 
@@ -1133,7 +1133,7 @@ hook should require review justification.
 
 ## 22. Fingerprints
 
-> **Status: planned — not yet implemented.** The design detail lives in [Design Vision](vision.md#fingerprints); it is not part of current behavior.
+> **Status: planned - not yet implemented.** The design detail lives in [Design Vision](vision.md#fingerprints); it is not part of current behavior.
 
 ## 23. Validation
 
@@ -1219,7 +1219,7 @@ Adapter validates projection.
 
 ## 25. Validation Modes
 
-> **Status: planned — not yet implemented.** The design detail lives in [Design Vision](vision.md#validation-modes); it is not part of current behavior.
+> **Status: planned - not yet implemented.** The design detail lives in [Design Vision](vision.md#validation-modes); it is not part of current behavior.
 
 ## 26. Adapter Validation
 
@@ -1249,7 +1249,7 @@ separate explicit override API before validation can report them.
 
 ## 27. Debug and Audit
 
-> **Status: planned — not yet implemented.** The design detail lives in [Design Vision](vision.md#debug-and-audit); it is not part of current behavior.
+> **Status: planned - not yet implemented.** The design detail lives in [Design Vision](vision.md#debug-and-audit); it is not part of current behavior.
 
 ## 28. P0 Scope
 
@@ -1315,7 +1315,7 @@ more schema generators.
 
 ## 29. Future Vocabulary Candidates
 
-> **Status: planned — not yet implemented.** The design detail lives in [Design Vision](vision.md#future-vocabulary-candidates); it is not part of current behavior.
+> **Status: planned - not yet implemented.** The design detail lives in [Design Vision](vision.md#future-vocabulary-candidates); it is not part of current behavior.
 
 ## 30. Non-Goals
 

@@ -61,7 +61,7 @@ should look like on the wire. That's already the adapter's job.
 This is where CONTRACT and reflect-cpp differ: reflect-cpp
 answers the question "how do I serialize a struct into N formats."
 CONTRACT answers a different question: "how do I give a struct a stable
-contract that serialization may use — or may not."
+contract that serialization may use - or may not."
 
 ## Before / After
 
@@ -95,7 +95,7 @@ struct Order {
 
 Plus a separate `order.proto`, `protoc`, generated `.pb.h`/`.pb.cc`, and a
 hand-written `toProto`/`fromProto` between `Order` and `OrderProto`. Four
-formats — four places where you have to remember to make any schema
+formats - four places where you have to remember to make any schema
 change.
 
 With CONTRACT, `Order` is declared once (see above), and after that the
@@ -108,7 +108,7 @@ binary_out << order;
 proto_out << order;
 ```
 
-`Order` doesn't change at all in this code — only what you pass it
+`Order` doesn't change at all in this code - only what you pass it
 through changes.
 
 The difference shows the other way too: adding a new field is one line
@@ -132,14 +132,14 @@ declaration instead of N mappings." We wanted:
    - reuse a schema through inheritance (`BASE`)
    - compute a value on the fly (`PROPERTY`)
    - reference data the type doesn't own (`REFERENCE`).
-3. Format and behavior to belong entirely to the adapter, not the core —
+3. Format and behavior to belong entirely to the adapter, not the core -
    serialization here is just one of the possible roles, not the only
    one:
    - serialization (protobuf, JSON, compact, binary, ...)
    - validation
    - schema export
    - audit dumping.
-4. A separate attribute layer to sit on top of fields — policy that
+4. A separate attribute layer to sit on top of fields - policy that
    different adapters interpret each in their own way:
    - security
    - check
@@ -148,7 +148,7 @@ declaration instead of N mappings." We wanted:
 
 ## The Core of the Contract
 
-At the base is what we wanted as the first point — a stable schema with
+At the base is what we wanted as the first point - a stable schema with
 a field's ID, name, type, and access method. In practice, this is a
 small compile-time API that everything else is built on top of:
 
@@ -166,11 +166,11 @@ around it, from a wire codec to a debug dump, without ever reaching
 directly into the struct itself.
 
 By the way, why an ID at all instead of just a name: it's not only about
-wire size (a name is longer, slower to compare when packing) — the real
+wire size (a name is longer, slower to compare when packing) - the real
 danger is elsewhere. If the same identifier, whether a name or a number,
 gets reused for a field with an incompatible type, old and new code will
 start interpreting the same bytes differently. For this case, a contract
-can explicitly reserve an ID (`contract::schema::reserved_id(...)`) —
+can explicitly reserve an ID (`contract::schema::reserved_id(...)`) -
 today that's a purely declarative marker; no adapter checks it yet.
 
 ## Contract Flexibility: BASE, PROPERTY, and REFERENCE
@@ -204,7 +204,7 @@ The shared part of the schema is declared once in `Header` and reused,
 rather than copied into every type that needs it.
 
 **`PROPERTY(name, id, type)`** is a contract field with no physical
-struct member behind it — instead there's a `contract_get`/`contract_set`
+struct member behind it - instead there's a `contract_get`/`contract_set`
 pair:
 
 ```cpp
@@ -254,7 +254,7 @@ the logged value.
 
 ## The Adapter Ecosystem
 
-This is where the third point comes into play — format and behavior
+This is where the third point comes into play - format and behavior
 belong to the adapter, not the core. CONTRACT currently has six adapter
 families, and not all of them are symmetric on read/write. Below, in
 decreasing order of significance and completeness:
@@ -262,24 +262,24 @@ decreasing order of significance and completeness:
 | Adapter | Write | Read | Comment |
 |---|---|---|---|
 | protobuf | ✓ | ✓ | complete: wire-compatible with real protobuf, beats libprotobuf in 20/28 measurements ([separate article](protobuf-adapter-performance.md)) |
-| binary | ✓ | ✓ | complete: native layout with no wire overhead, the fastest option — but not a cross-platform format by default |
+| binary | ✓ | ✓ | complete: native layout with no wire overhead, the fastest option - but not a cross-platform format by default |
 | compact | ✓ | ✓ | complete: its own compact wire format, the only one today that actually skips unknown fields on read |
-| JSON | ✓ | - | write-only, but with security modes (redact/omit) — structured logging is built on it |
+| JSON | ✓ | - | write-only, but with security modes (redact/omit) - structured logging is built on it |
 | structured logging | ✓ | - | a thin layer on top of the JSON adapter for logs, not a separate wire format |
 | console/debug | ✓ | - | human-readable debug output |
-| YAML | - | ✓ | read-only: a strict config reader, not an export format — CONTRACT can't write YAML yet |
+| YAML | - | ✓ | read-only: a strict config reader, not an export format - CONTRACT can't write YAML yet |
 
 The architecture is the same across all of them: `contract` knows the
 fields and their identity and knows nothing about format, `io` works
 with bytes and a cursor. But `writer`/`reader` and `codec<T>` already
-belong to a specific adapter and know its wire rules — each format has
+belong to a specific adapter and know its wire rules - each format has
 its own.
 
 ## The Attribute Layer
 
 The fourth point was a separate attribute layer on top of fields,
 attached to a field in the list right next to its ID and interpreted by
-each adapter in its own way. The set of vocabularies is extensible — a new
+each adapter in its own way. The set of vocabularies is extensible - a new
 one can be added without touching the core; today `security` and `check`
 actually work.
 
@@ -304,14 +304,14 @@ struct AuthEvent {
 
 The same `AuthEvent`, without a single `if` in the business logic,
 behaves differently depending on the adapter. Console/debug and JSON
-currently take `secret`/`no_log`/`sensitive` into account — each with
-its own default — and the example below shows how to turn on the right
+currently take `secret`/`no_log`/`sensitive` into account - each with
+its own default - and the example below shows how to turn on the right
 mode through `options`. In binary, `encrypt()` today is a key-based
 obfuscation mechanism rather than cryptographic encryption. This kind of
 per-field policy is
 possible with ordinary serializers too (protobuf has its own field
 options); what's different about CONTRACT is that the same attribute is
-understood the same way by several independently implemented adapters —
+understood the same way by several independently implemented adapters -
 not that it's fundamentally unreachable for the rest.
 
 Here's what that looks like in a structured log (a simplified version of
@@ -360,17 +360,17 @@ Details, methodology, and two clearly documented exceptions are in
 So as not to create the impression that this is a solution for
 everything:
 
-- not runtime reflection — field traversal is unrolled at compile time.
-- not a generic serializer — the format and its rules belong entirely to
+- not runtime reflection - field traversal is unrolled at compile time.
+- not a generic serializer - the format and its rules belong entirely to
   the adapter; the core doesn't choose or dictate a format.
-- not a schema-first code generator — there's no separate schema file or
+- not a schema-first code generator - there's no separate schema file or
   generation step; the schema is the C++ struct itself.
-- not a place for buffers, SQL, or third-party runtime code — that's the
+- not a place for buffers, SQL, or third-party runtime code - that's the
   responsibility of a specific adapter, not the core.
 
 ## Example: A Config From YAML + Debug Output
 
-Last but not least — real code from the repository
+Last but not least - real code from the repository
 (`examples/yaml_file_read.cpp`): the same contract is read by the YAML
 adapter and printed by the debug adapter.
 
@@ -409,7 +409,7 @@ tags:
   - production
 ```
 
-the output — taken from the built binary:
+the output - taken from the built binary:
 
 ```text
 PaymentConfig:
@@ -430,7 +430,7 @@ written specifically for formatting.
 
 **Won't reflection eliminate the need for CONTRACT entirely?** C++26
 reflection can enumerate a struct's members without a macro. That will
-most likely genuinely simplify declaring and implementing the contract —
+most likely genuinely simplify declaring and implementing the contract -
 less hand-written text for enumerating physical fields. But the model
 itself isn't going anywhere: CONTRACT still has to define what a stable
 ID is that doesn't change across schema evolution (see above), what an
@@ -438,7 +438,7 @@ attribute-as-policy is (`security::secret()`, `schema::reserved_id()`),
 and what counts as a field when there's no physical member behind it
 (`PROPERTY`). And this doesn't touch the adapters at all: they've worked
 with an already-assembled contract, and will keep working that way no
-matter how the schema was declared — macro or reflection. Reflect-cpp
+matter how the schema was declared - macro or reflection. Reflect-cpp
 already shows today what plain reflection is missing for this model: it
 has neither a stable ID, nor an attribute layer, nor computed fields.
 
@@ -457,13 +457,13 @@ declaring a field's metadata once, in the C++ type itself.
 ## Bottom Line
 
 The point of CONTRACT is simple: declare the schema once, next to the
-type, and then do whatever you want with the data — write it to a binary
+type, and then do whatever you want with the data - write it to a binary
 protocol or protobuf, read a config from YAML, print it to debug output
-or a structured log — with no pile of service functions per task and no
+or a structured log - with no pile of service functions per task and no
 hand-written per-format field mapping. And none of that costs you speed:
 the adapters are fast.
 
 That's the whole point, in the end: one contract, any format, zero
 mapping.
 
-Code — [github.com/antako76/Contract](https://github.com/antako76/Contract).
+Code - [github.com/antako76/Contract](https://github.com/antako76/Contract).

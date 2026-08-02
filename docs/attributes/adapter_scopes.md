@@ -3,7 +3,7 @@
 > **Status.** The resolution mechanism (§2, §6) and the wire-adapter behavior
 > are implemented. The adapter *profiles* (§8: Log/Debug/Storage/Schema/Config/
 > Validation) and most of the capability matrix (§9) are a **design projection**
-> across intended adapter families — in code today only wire adapters exist
+> across intended adapter families - in code today only wire adapters exist
 > (`binary`, `compact`). CONTRACT does not impose requirements on adapters: an
 > adapter simply declares what it handles through its `adapter_traits`
 > (`visible_vocabularies` + `attribute_rules`). The "REQUIRED/OPTIONAL" wording

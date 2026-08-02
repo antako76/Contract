@@ -1,4 +1,4 @@
-# Attributes — Design Vision (Not Yet Implemented)
+# Attributes - Design Vision (Not Yet Implemented)
 
 This page collects the parts of the attribute model that are **designed but not
 yet implemented** in the current code. They describe the intended direction, not
